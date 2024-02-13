@@ -1,2 +1,4 @@
+# AI Ranch
 ![splash](splash.webp)
-AI Ranch
+
+![scope](scope.png)
