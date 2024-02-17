@@ -1,5 +1,15 @@
 NODE_DOMAIN = 'example.com'
-OPALSTACK_API_TOKEN = ''
+API_BASE_URL = 'https://my.opalstack.com/api/v1'
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+
+OPALSTACK_SERVER_ID = ''
+
+import os
+OPALSTACK_API_KEY = os.getenv('OPALSTACK_API_KEY')
+if not OPALSTACK_API_KEY:
+    raise ValueError("Missing OPALSTACK_API_KEY environment variable")
 
 from pathlib import Path
 
@@ -22,12 +32,15 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'nodes',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
