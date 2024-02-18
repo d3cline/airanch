@@ -1,7 +1,7 @@
 # AI Ranch
 ![splash](splash.webp)
 
-Welcome to AI Ranch, the groundbreaking project that aims to revolutionize the AI landscape by decentralizing and distributing AI workloads in a manner akin to what mining did for cryptocurrency. This initiative is dedicated to harnessing the collective power of distributed computing resources to democratize access to artificial intelligence, making powerful AI more accessible to developers, researchers, and enthusiasts around the globe.
+Make AI workloads like crypto mining. 
 
 ## Project Scope
 
