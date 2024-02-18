@@ -11,16 +11,8 @@ def create_tunnel_port(id):
     Node = apps.get_model('nodes', 'Node')
     node = Node.objects.get(id=id)
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
+    errors = {}
 
-    '''
-    1. Create OS User 
-    2. Create Nginx Port App, save port to model
-    3. Create domain NODENAME.SITEDOMAIN.TLD
-    4. Create site binding and SSL etc.
-    save every UUID to model for deletion later. 
-    '''
-
-    # Retrieve the "opalstacked" gift domain.
     # TODO add if not exists logic here. 
     base_domain = filt_one(opalapi.domains.list_all(), {'name': NODE_BASE_DOMAIN_NAME})
 
@@ -42,7 +34,15 @@ def create_tunnel_port(id):
         'name':  f'{node.name}',
         'server': web_server['id'],
     }]
-    osuser = one(opalapi.osusers.create(osusers_to_create))
+    try:
+        osuser = one(opalapi.osusers.create(osusers_to_create))
+    except RuntimeError as e:
+        errors['osuser'] = str(e)
+        Node.objects.filter(id=id).update(
+            state='FAILED',
+            error_logs=errors
+        )
+        raise
 
     apps_to_create = [{
         'name': f'{APPNAME}_{node.name}',
@@ -71,11 +71,10 @@ def create_tunnel_port(id):
     return True
 
 @shared_task
-def delete_tunnel_port_objects(id):
-    Node = apps.get_model('nodes', 'Node')
-    node = Node.objects.get(id=id)
+def delete_tunnel_port_objects(port_app_id, os_user_id, site_route_id, node_domain_id):
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
-    opalapi.sites.delete([created_site])
-    opalapi.apps.delete([created_app])
-    opalapi.osusers.delete([created_osuser])
-    opalapi.domains.delete([created_domain])
+    opalapi.sites.delete([site_route_id])
+    opalapi.domains.delete([node_domain_id])
+    opalapi.apps.delete([port_app_id])
+    opalapi.osusers.delete([os_user_id])
+    return True
