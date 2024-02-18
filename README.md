@@ -1,7 +1,7 @@
 # AI Ranch
 ![splash](splash.webp)
 
-Make AI workloads like crypto mining. 
+## Make AI work like crypto mining. 
 
 ## Project Scope
 
