@@ -73,8 +73,17 @@ def create_tunnel_port(id):
 @shared_task
 def delete_tunnel_port_objects(port_app_id, os_user_id, site_route_id, node_domain_id):
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
-    opalapi.sites.delete([site_route_id])
-    opalapi.domains.delete([node_domain_id])
-    opalapi.apps.delete([port_app_id])
-    opalapi.osusers.delete([os_user_id])
+
+    site = filt_one(opalapi.sites.list_all(), {'id': str(site_route_id)})
+    opalapi.sites.delete([site])
+
+    domain = filt_one(opalapi.domains.list_all(), {'id': str(node_domain_id)})
+    opalapi.domains.delete([domain])
+
+    app = filt_one(opalapi.apps.list_all(), {'id': str(port_app_id)})
+    opalapi.apps.delete([app])
+
+    osuer = filt_one(opalapi.osusers.list_all(), {'id': str(os_user_id)})
+    opalapi.osusers.delete([osuer])
+
     return True
