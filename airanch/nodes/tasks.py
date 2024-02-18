@@ -39,7 +39,7 @@ def create_tunnel_port(id):
         webserver_primary_ip = filt_one(opalapi.ips.list_all(embed=['server']), {'server.hostname': web_server['hostname'], 'primary': True})
 
     osusers_to_create = [{
-        'name':  f'{APPNAME}_{node.name}',
+        'name':  f'{node.name}',
         'server': web_server['id'],
     }]
     osuser = one(opalapi.osusers.create(osusers_to_create))
@@ -51,7 +51,6 @@ def create_tunnel_port(id):
     }]
     port_app = one(opalapi.apps.create(apps_to_create))
 
-
     sites_to_create = [{
         'name': f'{APPNAME}_{node.name}',
         'ip4': webserver_primary_ip['id'],
@@ -59,6 +58,15 @@ def create_tunnel_port(id):
         'routes': [{'app': port_app['id'], 'uri': '/'}],
     }]
     site = one(opalapi.sites.create(sites_to_create))
+
+    Node.objects.filter(id=id).update(
+        exit_port=port_app['port'],
+        node_domain_id=node_domain['id'],
+        os_user_id=osuser['id'],
+        port_app_id=port_app['id'],
+        site_route_id=site['id'],
+        state='READY'
+    )
 
     return True
 

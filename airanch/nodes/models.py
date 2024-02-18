@@ -30,9 +30,9 @@ STATE_CHOICES = [
 
 class Node(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=16)
     application_type = models.CharField(max_length=20, choices=APPLICATION_TYPES)
-    exit_port = models.IntegerField()
+    exit_port = models.IntegerField(blank=True, null=True)
     entry_port = models.IntegerField(validators=[MinValueValidator(8000)], blank=True, null=True)
     state = models.CharField(max_length=10, choices=STATE_CHOICES, default='PENDING')
 
