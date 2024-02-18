@@ -1,9 +1,9 @@
 # AI Ranch
 ![splash](splash.webp)
 
-## "Make AI work like crypto mining"
+## "Make AI work like crypto mining, or maybe shared hosting"
 
-At AI Ranch, our vision extends beyond the conventional boundaries of AI research and development. We are committed to creating an ecosystem where AI workloads are distributed across a network of participants, leveraging idle computing power from devices all around the world. This approach not only democratizes the development and utilization of AI but also optimizes computational efficiency, reducing waste and making AI research more sustainable.
+At AI Ranch, our vision extends beyond the conventional boundaries of AI research and development. We are committed to creating an ecosystem where AI workloads are distributed across a network of participants, leveraging computing power from devices all around the world. This approach not only democratizes the development and utilization of AI but also optimizes computational efficiency, reducing waste and making AI research more sustainable and accessible.
 
 ## Key Features:
 
