@@ -1,15 +1,31 @@
-NODE_DOMAIN = 'example.com'
-API_BASE_URL = 'https://my.opalstack.com/api/v1'
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
+API_BASE_URL = 'https://my.opalstack.com/api/v1'
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+APPNAME = 'airanch' # Change this if you have more than 1 AI Ranch on a single Opalstack Account
 
-OPALSTACK_SERVER_ID = ''
+# if webserver is None, attempt to detect the server automatically. If it is set to a string, use that webserver. 
+WEBSERVER = None
+def set_webserver(debug=False):
+    if debug: return None
+    hostname = gethostname()
+    if hostname.endswith('opalstack.com'): return hostname
+    else: raise ValueError("This is not an Opalstack server. Modify the WEBSERVER hostname manually to select a deployment server.")
+try:
+    if not WEBSERVER: WEBSERVER = set_webserver(DEBUG)
+except ValueError as e:
+    print(e)
 
 import os
 OPALSTACK_API_KEY = os.getenv('OPALSTACK_API_KEY')
 if not OPALSTACK_API_KEY:
     raise ValueError("Missing OPALSTACK_API_KEY environment variable")
+
+NODE_BASE_DOMAIN_NAME = os.getenv('NODE_BASE_DOMAIN_NAME')
+if not NODE_BASE_DOMAIN_NAME:
+    raise ValueError("Missing NODE_BASE_DOMAIN_NAME environment variable")
 
 from pathlib import Path
 
@@ -23,8 +39,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-ru8dupo+7a3e=6x*9_p^1vfe#479k467^91ggy7(7!7szmr1p#'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
