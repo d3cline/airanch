@@ -9,7 +9,10 @@ from socket import gethostname
 @shared_task
 def create_tunnel_port(id):
     Node = apps.get_model('nodes', 'Node')
+    Port = apps.get_model('nodes', 'Port')
     node = Node.objects.get(id=id)
+    ports = Port.objects.filter(node=node)
+
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
     errors = {}
 
@@ -44,26 +47,37 @@ def create_tunnel_port(id):
         )
         raise
 
-    apps_to_create = [{
-        'name': f'{APPNAME}_{node.name}',
-        'osuser': osuser['id'],
-        'type': 'CUS',
-    }]
-    port_app = one(opalapi.apps.create(apps_to_create))
+    apps_to_create = []
+    for port in ports:
+        apps_to_create.append({
+            'name': f'{port.entry_port}',
+            'osuser': osuser['id'],
+            'type': 'CUS',
+        })
+
+    port_apps = opalapi.apps.create(apps_to_create)
+
+    routes = []
+    for port_app in port_apps:
+        Port.objects.filter(entry_port=port_app['name']).update(
+            exit_port=port_app['port'],
+            port_app_id=port_app['id'],
+        )
+        routes.append(
+            {'app': port_app['id'], 'uri': f'/{port_app["name"]}'}
+        )
 
     sites_to_create = [{
         'name': f'{APPNAME}_{node.name}',
         'ip4': webserver_primary_ip['id'],
         'domains': [node_domain['id']],
-        'routes': [{'app': port_app['id'], 'uri': '/'}],
+        'routes': routes,
     }]
     site = one(opalapi.sites.create(sites_to_create))
 
     Node.objects.filter(id=id).update(
-        exit_port=port_app['port'],
         node_domain_id=node_domain['id'],
         os_user_id=osuser['id'],
-        port_app_id=port_app['id'],
         site_route_id=site['id'],
         state='READY'
     )
@@ -71,7 +85,7 @@ def create_tunnel_port(id):
     return True
 
 @shared_task
-def delete_tunnel_port_objects(port_app_id, os_user_id, site_route_id, node_domain_id):
+def delete_tunnel_port_objects(os_user_id, site_route_id, node_domain_id):
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
 
     site = filt_one(opalapi.sites.list_all(), {'id': str(site_route_id)})
@@ -79,9 +93,6 @@ def delete_tunnel_port_objects(port_app_id, os_user_id, site_route_id, node_doma
 
     domain = filt_one(opalapi.domains.list_all(), {'id': str(node_domain_id)})
     opalapi.domains.delete([domain])
-
-    app = filt_one(opalapi.apps.list_all(), {'id': str(port_app_id)})
-    opalapi.apps.delete([app])
 
     osuer = filt_one(opalapi.osusers.list_all(), {'id': str(os_user_id)})
     opalapi.osusers.delete([osuer])
