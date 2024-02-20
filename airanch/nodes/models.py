@@ -13,14 +13,23 @@ STATE_CHOICES = [
     ('FAILED', 'Failed'),
 ]
 
+class PublicKey(models.Model):
+    key = models.TextField(blank=True, null=True)
+
+@receiver(post_save, sender=PublicKey)
+def trigger_pubkey_post_save(sender, instance, **kwargs):
+    update_pub_key.delay(instance.id)
+
 class Node(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=16, unique=True)
     state = models.CharField(max_length=10, choices=STATE_CHOICES, default='PENDING')
-
+    template = models.TextField(blank=True, null=True)
     os_user_id = models.UUIDField(blank=True, null=True)
     site_route_id = models.UUIDField(blank=True, null=True)
     node_domain_id = models.UUIDField(blank=True, null=True)
+    password = models.CharField(max_length=255, blank=True, null=True)
+    pubkey = models.OneToOneField(PublicKey, on_delete=models.CASCADE, related_name='publickey')
 
     error_logs = models.JSONField(default=list, blank=True, null=True)
 

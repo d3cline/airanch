@@ -5,6 +5,37 @@ from opalstack.util import filt, filt_one, one
 from airanch.settings import OPALSTACK_API_KEY, NODE_BASE_DOMAIN_NAME, APPNAME, WEBSERVER
 from django.apps import apps
 from socket import gethostname
+import paramiko
+
+
+@shared_task
+def upload_content_to_server(file_content, remote_filepath, hostname, username, password, permissions=600):
+    try:
+        # Initialize the SSH client
+        client = paramiko.SSHClient()
+        # Automatically add host key
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # Connect to the server
+        client.connect(hostname, port=22, username=username, password=password)
+        
+        # Use Paramiko's SFTP client for file operations
+        sftp = client.open_sftp()
+        
+        # Open the remote file in write mode ('w') and write the content
+        with sftp.file(remote_filepath, 'w') as remote_file:
+            remote_file.write(file_content)
+        
+        # Set permissions for the remote file
+        sftp.chmod(remote_filepath, permissions)
+        
+        # Cleanup: close the SFTP client and SSH connection
+        sftp.close()
+        client.close()
+        return True
+    except Exception as e:
+        print(f"Failed to upload content: {e}")
+        return False
+
 
 @shared_task
 def create_tunnel_port(id):
@@ -47,6 +78,7 @@ def create_tunnel_port(id):
         )
         raise
 
+
     apps_to_create = []
     for port in ports:
         apps_to_create.append({
@@ -79,6 +111,7 @@ def create_tunnel_port(id):
         node_domain_id=node_domain['id'],
         os_user_id=osuser['id'],
         site_route_id=site['id'],
+        password=osuser['default_password'],
         state='READY'
     )
 
