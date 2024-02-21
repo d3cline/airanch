@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRF Auth Example</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link href="daisy.css" rel="stylesheet">
+    <!-- Include Alpine.js -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+<body class="p-6">
+    <div x-data="loginComponent()" class="container max-w-md mx-auto">
+        <div id="loginForm">
+            <h2 class="text-xl font-bold mb-4">Login</h2>
+            <input type="text" x-model="username" placeholder="Username" class="input input-bordered w-full mb-4"/>
+            <input type="password" x-model="password" placeholder="Password" class="input input-bordered w-full mb-4"/>
+            <button x-on:click="login()" class="btn btn-primary w-full">Login</button>
+        </div>
+
+        <div id="nodeList" class="mt-8 hidden" x-bind:class="{'hidden': !isLoggedIn}">
+            <h2 class="text-xl font-bold mb-4">Nodes</h2>
+            <ul id="nodes" class="menu bg-base-100 w-56 p-2 rounded-box">
+                <template x-for="node in nodes" :key="node.id">
+                    <li x-text="node.name"></li>
+                </template>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function loginComponent() {
+            return {
+                username: '',
+                password: '',
+                isLoggedIn: false,
+                nodes: [],
+                async login() {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const loginResponse = await fetch('http://127.0.0.1:8000/api-auth/login/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: new URLSearchParams({
+                            'username': this.username,
+                            'password': this.password
+                        }),
+                        credentials: 'include'
+                    });
+
+                    if (loginResponse.ok) {
+                        this.isLoggedIn = true;
+                        this.fetchNodes();
+                    } else {
+                        alert('Login failed!');
+                    }
+                },
+                async fetchNodes() {
+                    const response = await fetch('http://127.0.0.1:8000/api/nodes/', {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                        this.nodes = await response.json();
+                    } else {
+                        alert('Failed to fetch nodes!');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
