@@ -78,7 +78,6 @@ def create_tunnel_port(id):
         )
         raise
 
-
     apps_to_create = []
     for port in ports:
         apps_to_create.append({
@@ -120,14 +119,30 @@ def create_tunnel_port(id):
 @shared_task
 def delete_tunnel_port_objects(os_user_id, site_route_id, node_domain_id):
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
-
     site = filt_one(opalapi.sites.list_all(), {'id': str(site_route_id)})
     opalapi.sites.delete([site])
-
     domain = filt_one(opalapi.domains.list_all(), {'id': str(node_domain_id)})
     opalapi.domains.delete([domain])
-
     osuer = filt_one(opalapi.osusers.list_all(), {'id': str(os_user_id)})
     opalapi.osusers.delete([osuer])
-
     return True
+
+@shared_task
+def update_pub_key(pubkey, node):
+    opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
+    if WEBSERVER: 
+        web_server = filt_one(opalapi.servers.list_all()['web_servers'], {'hostname': gethostname()})
+    else: 
+        web_server = opalapi.servers.list_all()['web_servers'][0]
+
+    upload_content_to_server.delay(
+        pubkey.key,
+        f"/home/{node['name']}/.ssh/id_rsa.pub",
+        web_server['hostname'],
+        node['name'],
+        node['password'],
+        600
+    )
+    return True
+
+

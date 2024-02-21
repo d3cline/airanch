@@ -4,7 +4,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .tasks import create_tunnel_port, delete_tunnel_port_objects
+from .tasks import create_tunnel_port, delete_tunnel_port_objects, update_pub_key
 
 # State choices
 STATE_CHOICES = [
@@ -18,7 +18,7 @@ class PublicKey(models.Model):
 
 @receiver(post_save, sender=PublicKey)
 def trigger_pubkey_post_save(sender, instance, **kwargs):
-    update_pub_key.delay(instance.id)
+    update_pub_key.delay(instance, instance.node)
 
 class Node(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -29,7 +29,7 @@ class Node(models.Model):
     site_route_id = models.UUIDField(blank=True, null=True)
     node_domain_id = models.UUIDField(blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
-    pubkey = models.OneToOneField(PublicKey, on_delete=models.CASCADE, related_name='publickey')
+    pubkey = models.OneToOneField(PublicKey, on_delete=models.CASCADE, related_name='node', blank=True, null=True)
 
     error_logs = models.JSONField(default=list, blank=True, null=True)
 
