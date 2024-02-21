@@ -7,6 +7,50 @@ from django.apps import apps
 from socket import gethostname
 import paramiko
 
+from paramiko import SSHClient, AutoAddPolicy
+from paramiko.sftp_attr import SFTPAttributes
+from celery import shared_task
+
+@shared_task
+def publish_public_key_to_server(public_key_content, hostname, username, password):
+    ssh_directory = f"/home/{username}/.ssh"
+    authorized_keys_file = f"{ssh_directory}/authorized_keys"
+
+    client = SSHClient()
+    client.set_missing_host_key_policy(AutoAddPolicy())
+
+    try:
+        client.connect(hostname, username=username, password=password)
+        sftp = client.open_sftp()
+
+        # Check if SSH directory exists, create it if not
+        try:
+            sftp.stat(ssh_directory)
+        except IOError:  # If the directory does not exist, create it
+            sftp.mkdir(ssh_directory, mode=0o700)
+
+        # Check if authorized_keys file exists, create it if not
+        try:
+            sftp.stat(authorized_keys_file)
+        except IOError:  # If the file does not exist, create it
+            file = sftp.file(authorized_keys_file, 'w')
+            file.close()
+            sftp.chmod(authorized_keys_file, 0o600)
+
+        # Append public key to authorized_keys file
+        with sftp.file(authorized_keys_file, 'a') as authorized_keys:
+            authorized_keys.write(public_key_content + "\n")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False, str(e)
+    finally:
+        if sftp: sftp.close()
+        if client: client.close()
+
+    return True, "Public key published successfully"
+
+
 
 @shared_task
 def upload_content_to_server(file_content, remote_filepath, hostname, username, password, permissions=600):
@@ -35,6 +79,9 @@ def upload_content_to_server(file_content, remote_filepath, hostname, username, 
     except Exception as e:
         print(f"Failed to upload content: {e}")
         return False
+
+from paramiko import SSHClient, AutoAddPolicy
+import os
 
 
 @shared_task
@@ -128,21 +175,26 @@ def delete_tunnel_port_objects(os_user_id, site_route_id, node_domain_id):
     return True
 
 @shared_task
-def update_pub_key(pubkey, node):
+def update_pub_key(pubkey):
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
     if WEBSERVER: 
         web_server = filt_one(opalapi.servers.list_all()['web_servers'], {'hostname': gethostname()})
     else: 
         web_server = opalapi.servers.list_all()['web_servers'][0]
 
-    upload_content_to_server.delay(
-        pubkey.key,
-        f"/home/{node['name']}/.ssh/id_rsa.pub",
+    PublicKey = apps.get_model('nodes', 'PublicKey')
+    pubkey = PublicKey.objects.get(id=pubkey)
+
+    Node = apps.get_model('nodes', 'Node')
+    node = Node.objects.get(id=pubkey.node.id)
+
+    publish_public_key_to_server(
+        pubkey.key, 
         web_server['hostname'],
-        node['name'],
-        node['password'],
-        600
+        node.name, 
+        node.password
     )
+
     return True
 
 

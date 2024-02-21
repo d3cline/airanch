@@ -5,6 +5,9 @@ from django.core.validators import MinValueValidator
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .tasks import create_tunnel_port, delete_tunnel_port_objects, update_pub_key
+from django.core.exceptions import ValidationError
+import base64
+import binascii
 
 # State choices
 STATE_CHOICES = [
@@ -12,13 +15,6 @@ STATE_CHOICES = [
     ('READY', 'Ready'),
     ('FAILED', 'Failed'),
 ]
-
-class PublicKey(models.Model):
-    key = models.TextField(blank=True, null=True)
-
-@receiver(post_save, sender=PublicKey)
-def trigger_pubkey_post_save(sender, instance, **kwargs):
-    update_pub_key.delay(instance, instance.node)
 
 class Node(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -29,7 +25,6 @@ class Node(models.Model):
     site_route_id = models.UUIDField(blank=True, null=True)
     node_domain_id = models.UUIDField(blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
-    pubkey = models.OneToOneField(PublicKey, on_delete=models.CASCADE, related_name='node', blank=True, null=True)
 
     error_logs = models.JSONField(default=list, blank=True, null=True)
 
@@ -39,6 +34,37 @@ class Node(models.Model):
 
     def __str__(self):
         return self.name
+
+def validate_ssh_public_key(value):
+    """
+    Validates that the value is a valid SSH public key.
+    """
+    try:
+        parts = value.strip().split()
+        if len(parts) < 2 or len(parts) > 3:
+            raise ValidationError("Invalid SSH public key format.")
+
+        key_type, key_string = parts[0], parts[1]
+        if key_type not in ["ssh-rsa", "ssh-ed25519", "ecdsa-sha2-nistp256"]:
+            raise ValidationError("Unsupported SSH key type.")
+
+        # Try decoding the key string
+        decoded_key = base64.b64decode(key_string)
+    except binascii.Error:
+        raise ValidationError("Invalid base64 encoding in SSH public key.")
+    except ValueError as e:
+        raise ValidationError(f"Invalid SSH public key: {e}")
+
+class PublicKey(models.Model):
+    key = models.TextField(blank=True, null=True, validators=[validate_ssh_public_key])
+    node = models.OneToOneField('Node', on_delete=models.CASCADE, related_name='pubkey')
+
+    def clean(self):
+        validate_ssh_public_key(self.key)
+
+@receiver(post_save, sender=PublicKey)
+def trigger_pubkey_post_save(sender, instance, **kwargs):
+    update_pub_key.delay(instance.id)
 
 class Port(models.Model):
     node = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='ports')
