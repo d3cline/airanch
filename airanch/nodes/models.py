@@ -8,6 +8,7 @@ from .tasks import create_tunnel_port, delete_tunnel_port_objects, update_pub_ke
 from django.core.exceptions import ValidationError
 import base64
 import binascii
+from django.conf import settings
 
 # State choices
 STATE_CHOICES = [
@@ -18,6 +19,7 @@ STATE_CHOICES = [
 
 class Node(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='nodes')
     name = models.CharField(max_length=16, unique=True)
     state = models.CharField(max_length=10, choices=STATE_CHOICES, default='PENDING')
     template = models.TextField(blank=True, null=True)
@@ -25,6 +27,7 @@ class Node(models.Model):
     site_route_id = models.UUIDField(blank=True, null=True)
     node_domain_id = models.UUIDField(blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
+
 
     error_logs = models.JSONField(default=list, blank=True, null=True)
 

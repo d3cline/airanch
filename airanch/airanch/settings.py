@@ -39,6 +39,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-ru8dupo+7a3e=6x*9_p^1vfe#479k467^91ggy7(7!7szmr1p#'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
 
 
 ALLOWED_HOSTS = []
@@ -47,7 +56,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'nodes',
     'django_celery_results',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
