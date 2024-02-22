@@ -17,18 +17,21 @@ STATE_CHOICES = [
     ('FAILED', 'Failed'),
 ]
 
+
+class Template(models.Model):
+    html = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=16, unique=True)
+
 class Node(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='nodes')
     name = models.CharField(max_length=16, unique=True)
     state = models.CharField(max_length=10, choices=STATE_CHOICES, default='PENDING')
-    template = models.TextField(blank=True, null=True)
     os_user_id = models.UUIDField(blank=True, null=True)
     site_route_id = models.UUIDField(blank=True, null=True)
     node_domain_id = models.UUIDField(blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
-
-
+    template = models.ForeignKey(Template, on_delete=models.SET_NULL, blank=True, null=True, related_name='nodes')
     error_logs = models.JSONField(default=list, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -58,6 +61,7 @@ def validate_ssh_public_key(value):
     except ValueError as e:
         raise ValidationError(f"Invalid SSH public key: {e}")
 
+
 class PublicKey(models.Model):
     key = models.TextField(blank=True, null=True, validators=[validate_ssh_public_key])
     node = models.OneToOneField('Node', on_delete=models.CASCADE, related_name='pubkey')
@@ -79,8 +83,11 @@ class Port(models.Model):
         return f"Port {self.entry_port} for Node {self.node.name}"
 
 @receiver(post_save, sender=Node)
-def trigger_node_post_save(sender, instance, **kwargs):
-    create_tunnel_port.delay(instance.id)
+def trigger_node_post_save(sender, instance, created, **kwargs):
+    if created:
+        create_tunnel_port.delay(instance.id)
+    else:
+        pass
 
 @receiver(post_delete, sender=Node)
 def trigger_node_post_delete(sender, instance, **kwargs):

@@ -10,8 +10,8 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 </head>
 <body class="p-6">
-    <div x-data="loginComponent()" class="container max-w-md mx-auto">
-        <div id="loginForm">
+    <div x-data="loginComponent()" class="container max-w-md mx-auto" >
+        <div id="loginForm" x-show="!isLoggedIn">
             <h2 class="text-xl font-bold mb-4">Login</h2>
             <input type="text" x-model="username" placeholder="Username" class="input input-bordered w-full mb-4"/>
             <input type="password" x-model="password" placeholder="Password" class="input input-bordered w-full mb-4"/>
@@ -37,7 +37,7 @@
                 nodes: [],
                 async login() {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    const loginResponse = await fetch('http://127.0.0.1:8000/api-auth/login/', {
+                    const loginResponse = await fetch('/api-auth/login/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
@@ -58,7 +58,7 @@
                     }
                 },
                 async fetchNodes() {
-                    const response = await fetch('http://127.0.0.1:8000/api/nodes/', {
+                    const response = await fetch('/api/nodes/', {
                         method: 'GET',
                         credentials: 'include'
                     });

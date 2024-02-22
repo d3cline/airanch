@@ -50,8 +50,6 @@ def publish_public_key_to_server(public_key_content, hostname, username, passwor
 
     return True, "Public key published successfully"
 
-
-
 @shared_task
 def upload_content_to_server(file_content, remote_filepath, hostname, username, password, permissions=600):
     try:
@@ -133,17 +131,33 @@ def create_tunnel_port(id):
             'type': 'CUS',
         })
 
+
+    if node.template.html: 
+        apps_to_create.append({
+            'name': 'template',
+            'osuser': osuser['id'],
+            'type': 'STA',
+        })
+        node.template
+        
+
     port_apps = opalapi.apps.create(apps_to_create)
+
+    if node.template.html:upload_content_to_server(node.template.html, f'/home/{osuser["name"]}/apps/template/index.html', web_server['hostname'], osuser['name'], osuser['default_password'], permissions=644)
 
     routes = []
     for port_app in port_apps:
-        Port.objects.filter(entry_port=port_app['name']).update(
-            exit_port=port_app['port'],
-            port_app_id=port_app['id'],
-        )
-        routes.append(
-            {'app': port_app['id'], 'uri': f'/{port_app["name"]}'}
-        )
+        if port_app['name'] == 'template': 
+            routes.append({'app': port_app['id'], 'uri': '/'})
+        else:
+            Port.objects.filter(entry_port=port_app['name']).update(
+                exit_port=port_app['port'],
+                port_app_id=port_app['id'],
+            )
+            routes.append(
+                {'app': port_app['id'], 'uri': f'/{port_app["name"]}'}
+            )
+
 
     sites_to_create = [{
         'name': f'{APPNAME}_{node.name}',
