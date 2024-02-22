@@ -189,26 +189,32 @@ def delete_tunnel_port_objects(os_user_id, site_route_id, node_domain_id):
     return True
 
 @shared_task
-def update_pub_key(pubkey):
+def update_node(id):
     opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
     if WEBSERVER: 
         web_server = filt_one(opalapi.servers.list_all()['web_servers'], {'hostname': gethostname()})
     else: 
         web_server = opalapi.servers.list_all()['web_servers'][0]
-
-    PublicKey = apps.get_model('nodes', 'PublicKey')
-    pubkey = PublicKey.objects.get(id=pubkey)
-
     Node = apps.get_model('nodes', 'Node')
-    node = Node.objects.get(id=pubkey.node.id)
+    node = Node.objects.get(id=id)
+    if node.template.html:upload_content_to_server(node.template.html, f'/home/{node.name}/apps/template/index.html', web_server['hostname'], node.name, node.password, permissions=644)
+    return True
+
+
+@shared_task
+def update_pub_key(id):
+    opalapi = opalstack.Api(token=OPALSTACK_API_KEY)
+    if WEBSERVER: 
+        web_server = filt_one(opalapi.servers.list_all()['web_servers'], {'hostname': gethostname()})
+    else: 
+        web_server = opalapi.servers.list_all()['web_servers'][0]
+    PublicKey = apps.get_model('nodes', 'PublicKey')
+    pubkey = PublicKey.objects.get(id=id)
 
     publish_public_key_to_server(
         pubkey.key, 
         web_server['hostname'],
-        node.name, 
-        node.password
+        pubkey.node.name, 
+        pubkey.node.password
     )
-
     return True
-
-

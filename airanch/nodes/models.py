@@ -4,7 +4,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .tasks import create_tunnel_port, delete_tunnel_port_objects, update_pub_key
+from .tasks import create_tunnel_port, delete_tunnel_port_objects, update_node, update_pub_key
 from django.core.exceptions import ValidationError
 import base64
 import binascii
@@ -87,7 +87,7 @@ def trigger_node_post_save(sender, instance, created, **kwargs):
     if created:
         create_tunnel_port.delay(instance.id)
     else:
-        pass
+        update_node.delay(instance.id)
 
 @receiver(post_delete, sender=Node)
 def trigger_node_post_delete(sender, instance, **kwargs):
