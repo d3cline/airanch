@@ -70,6 +70,48 @@
                 </tbody>
             </table>
         </div>
+
+
+
+
+
+
+        <div class="overflow-x-auto"  x-show="users.length > 0">
+            <table class="table">
+                <!-- head -->
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th >Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="(user, i) in users" :key="user.id">
+                        <tr>
+                            <th x-text="user.username">Name</th>
+
+                            <td>
+                                <button onclick="edit_user.showModal()" class="btn btn-circle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
     </div>
 
     <dialog id="new_node" class="modal modal-bottom sm:modal-middle">
@@ -82,6 +124,16 @@
             Name
             <input type="text" class="grow" placeholder="Daisy" />
         </label>
+
+        <label class="input input-bordered flex items-center gap-2 my-2">
+            Access Token
+            <input type="text" class="grow" placeholder="Daisy" />
+        </label>
+
+        <label class="input input-bordered flex items-center gap-2 my-2">
+            Public Key
+            <input type="text" class="grow" placeholder="Daisy" />
+        </label>        
 
         <select class="flex select select-bordered w-full my-2">
             <option disabled selected>Select A User</option>
@@ -120,6 +172,31 @@
         <div class="modal-box">
             <h3 class="font-bold text-lg">Edit Node</h3>
             <p class="py-4">Press ESC key or click the button below to close</p>
+
+            <label class="input input-bordered flex items-center gap-2 my-2">
+                Access Token
+                <input type="text" class="grow" placeholder="Daisy" />
+            </label>
+    
+            <label class="input input-bordered flex items-center gap-2 my-2">
+                Public Key
+                <input type="text" class="grow" placeholder="Daisy" />
+            </label>        
+    
+            <select class="flex select select-bordered w-full my-2">
+                <option disabled selected>Select A User</option>
+                <template x-for="user in users">
+                    <option x-text="user.username" :value="user.id">Name</option>
+                </template>
+            </select>
+    
+            <select class="flex select select-bordered w-full my-2">
+                <option disabled selected>Select a Template</option>
+                <template x-for="template in templates">
+                    <option x-text="template.name" :value="template.id">Template</option>
+                </template>
+            </select>
+
             <div class="modal-action">
             <form method="dialog">
                 <!-- if there is a button in form, it will close the modal -->
@@ -133,6 +210,17 @@
         <div class="modal-box">
             <h3 class="font-bold text-lg">New User</h3>
             <p class="py-4">Press ESC key or click the button below to close</p>
+
+            <label class="input input-bordered flex items-center gap-2 my-2">
+                Name
+                <input type="text" class="grow" placeholder="Daisy" />
+            </label>
+
+            <label class="input input-bordered flex items-center gap-2 my-2">
+                Password
+                <input type="text" class="grow" placeholder="Daisy" />
+            </label>            
+
             <div class="modal-action">
             <form method="dialog">
                 <!-- if there is a button in form, it will close the modal -->
@@ -141,12 +229,36 @@
             </div>
         </div>
     </dialog> 
+
+    <dialog id="edit_user" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Edit User</h3>
+            <p class="py-4">Press ESC key or click the button below to close</p>
+
+            <label class="input input-bordered flex items-center gap-2 my-2">
+                Password
+                <input type="text" class="grow" placeholder="Daisy" />
+            </label>            
+
+            <div class="modal-action">
+            <form method="dialog">
+                <!-- if there is a button in form, it will close the modal -->
+                <button class="btn">Close</button>
+            </form>
+            </div>
+        </div>
+    </dialog>    
     
     
     <dialog id="new_template" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
             <h3 class="font-bold text-lg">New Template</h3>
             <p class="py-4">Press ESC key or click the button below to close</p>
+
+            <label class="input input-bordered flex items-center gap-2 my-2">
+                Name
+                <input type="text" class="grow" placeholder="Daisy" />
+            </label>
 
             <div id="editor" class="w-full h-96"></div>
 
