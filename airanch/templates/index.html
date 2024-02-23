@@ -26,12 +26,12 @@
                     <tr>
                         <th>Name</th>
                         <th>Template</th>
-                        <th x-show="users">User</th>
-                        <th>Pubkey</th>
-                        <th>State</th>
-                        <th>Errors</th>
-                        <th>Ports</th>
-                        <th>Edit</th>
+                        <th>Hostname</th>
+                        <th x-show="users.length > 0">User</th>
+                        <th x-show="users.length > 0">Pubkey</th>
+                        <th x-show="users.length > 0">State</th>
+                        <th x-show="users.length > 0">Ports</th>
+                        <th  x-show="users.length > 0">Edit</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,19 +39,28 @@
                         <tr>
                             <th x-text="node.name">Name</th>
                             <td x-text="templates.find(template => template.id === node.template)?.name || 'Not Found'">Template</td>
-                            <td x-show="users" x-text="users.find(user => user.id === node.owner)?.username || 'Not Found'">User</td>
-                            <td>
+                            <th><a target="_blank" x-bind:href="'https://'+node.hostname" x-text="node.hostname"></a></th>
+                            <td x-show="users.length > 0" x-text="users.find(user => user.id === node.owner)?.username || 'Not Found'">User</td>
+                            <td x-show="users.length > 0">
                                 <input x-model="node.pubkey" type="checkbox" class="checkbox" disabled />
                             </td>
+                            
+                            <td x-show="users.length > 0">
+                                <div :class="{
+                                    'badge badge-success gap-2': node.state === 'READY',
+                                    'badge badge-warning gap-2': node.state === 'PENDING',
+                                    'badge badge-error gap-2': node.state === 'FAILED'
+                                  }">
+                                <span data-tip="node.error_logs" x-text="node.state.toLowerCase()" ></span>
+                              </div>
 
-                            <td x-text="node.state">State</td>
-                            <td x-text="node.error_logs">Errors</td>
-                            <td>
+                            </td>
+                            <td x-show="users.length > 0">
                                 <template x-for="port in node.ports" :key="port.entry_port">
                                     <p x-text="port.entry_port">Ports</p>
                                 </template>
                             </td>
-                            <td>
+                            <td  x-show="users.length > 0">
                                 <button class="btn btn-circle">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
                                 </button>
@@ -65,7 +74,7 @@
 
     
 
-    <div class="btm-nav"  x-bind:class="{'hidden': !isLoggedIn}">
+    <div class="btm-nav"  x-show="users.length > 0" x-bind:class="{'hidden': !isLoggedIn}">
         <button class="hover:active">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.602H7.923a3.375 3.375 0 0 0-3.285 2.602l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008Zm-3 0h.008v.008h-.008v-.008Z" /></svg>
           <span class="btm-nav-label">New Node</span>

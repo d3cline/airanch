@@ -164,6 +164,7 @@ def create_tunnel_port(id):
         'ip4': webserver_primary_ip['id'],
         'domains': [node_domain['id']],
         'routes': routes,
+        "generate_le": True,
     }]
     site = one(opalapi.sites.create(sites_to_create))
 
@@ -172,7 +173,8 @@ def create_tunnel_port(id):
         os_user_id=osuser['id'],
         site_route_id=site['id'],
         password=osuser['default_password'],
-        state='READY'
+        state='READY',
+        hostname=node_domain_name
     )
 
     return True

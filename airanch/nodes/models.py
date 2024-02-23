@@ -33,6 +33,7 @@ class Node(models.Model):
     password = models.CharField(max_length=255, blank=True, null=True)
     template = models.ForeignKey(Template, on_delete=models.SET_NULL, blank=True, null=True, related_name='nodes')
     error_logs = models.JSONField(default=list, blank=True, null=True)
+    hostname = models.CharField(max_length=1000, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.name = "".join(re.findall(r'[a-z0-9]+', self.name.lower()))
