@@ -18,9 +18,35 @@ class NodeWriteSerializer(serializers.ModelSerializer):
         return node
 
 class NodeUpdateSerializer(serializers.ModelSerializer):
+    pubkey = serializers.CharField(source='pubkey.key')
+
     class Meta:
         model = Node
-        fields = ['pubkey', 'owner', 'template']
+        fields = ['pubkey', 'owner', 'access_token', 'template']
+
+    def update(self, instance, validated_data):
+        pubkey_data = validated_data.pop('pubkey', None)
+
+        # Update the PublicKey instance if 'pubkey' field is provided in the request
+        if pubkey_data and 'key' in pubkey_data:
+            key = pubkey_data['key']
+            # Check if the instance already has a related PublicKey
+            if hasattr(instance, 'pubkey'):
+                # Update the existing PublicKey
+                pubkey = instance.pubkey
+                pubkey.key = key
+                pubkey.save()
+            else:
+                # Create a new PublicKey and associate it with the Node instance
+                PublicKey.objects.create(node=instance, key=key)
+
+        # Update other fields of the Node instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
 
 class NodeReadSerializer(serializers.ModelSerializer):
     ports = serializers.SerializerMethodField() 
@@ -42,7 +68,11 @@ class AdminNodeReadSerializer(serializers.ModelSerializer):
         exclude = ['password', 'os_user_id', 'site_route_id', 'node_domain_id']
 
     def get_pubkey(self, obj):
-        return getattr(obj, 'pubkey', None) is not None
+        if hasattr(obj, 'pubkey') and obj.pubkey is not None:
+            # Assuming 'key' is the attribute of the PublicKey model that stores the actual public key string
+            return obj.pubkey.key
+        return None
+
 
     def get_ports(self, obj):
         ports_list = obj.ports.all()

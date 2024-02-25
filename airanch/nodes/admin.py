@@ -32,3 +32,8 @@ class NodeAdmin(admin.ModelAdmin):
 class TemplateAdmin(admin.ModelAdmin):
     list_display = ('name', 'html')
     search_fields = ('name',)
+
+@admin.register(PublicKey)
+class PublicKeyAdmin(admin.ModelAdmin):
+    list_display = ('key', 'node')
+    search_fields = ('node',)

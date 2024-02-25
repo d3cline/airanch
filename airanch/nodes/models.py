@@ -65,7 +65,7 @@ def validate_ssh_public_key(value):
 
 
 class PublicKey(models.Model):
-    key = models.TextField(blank=True, null=True, validators=[validate_ssh_public_key])
+    key = models.TextField(validators=[validate_ssh_public_key])
     node = models.OneToOneField('Node', on_delete=models.CASCADE, related_name='pubkey')
 
     def clean(self):
