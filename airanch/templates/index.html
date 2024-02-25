@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRF Auth Example</title>
+    <title>AI Ranch</title>
     <link rel="icon" type="image/webp" href="static/icon.webp">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <link href="static/daisy.css" rel="stylesheet">
     <!-- Include Alpine.js -->
     <script src="//unpkg.com/alpinejs" defer></script>
 </head>
-<body x-data="loginComponent()" class="h-screen bg-base-300 flex items-center justify-center">
+<body x-data="bodyData()" class="h-screen bg-base-300 flex items-center justify-center">
     <div  class="container p-8 rounded-lg max-w-fit bg-base-100">
         <div id="loginForm" x-show="!isLoggedIn">
             <h2 class="text-xl font-bold mb-4">Login</h2>
@@ -18,7 +18,6 @@
             <input type="password" x-model="password" placeholder="Password" class="input input-bordered w-full mb-4"/>
             <button x-on:click="login()" class="btn btn-primary w-full">Login</button>
         </div>
-
         <div class="overflow-x-auto" x-bind:class="{'hidden': !isLoggedIn}">
             <table class="table">
                 <!-- head -->
@@ -70,12 +69,6 @@
                 </tbody>
             </table>
         </div>
-
-
-
-
-
-
         <div class="overflow-x-auto"  x-show="users.length > 0">
             <table class="table">
                 <!-- head -->
@@ -100,18 +93,6 @@
                 </tbody>
             </table>
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
     </div>
 
     <dialog id="new_node" class="modal modal-bottom sm:modal-middle">
@@ -119,30 +100,29 @@
         <h3 class="font-bold text-lg">New Node</h3>
         <p class="py-4">Please enter a name and ports for this node</p>
 
-
         <label class="input input-bordered flex items-center gap-2 my-2">
             Name
-            <input type="text" class="grow" placeholder="Daisy" />
+            <input x-model="new_node_name" type="text" class="grow" placeholder="Daisy" />
         </label>
 
         <label class="input input-bordered flex items-center gap-2 my-2">
             Access Token
-            <input type="text" class="grow" placeholder="Daisy" />
+            <input x-model="new_node_access_token" type="text" class="grow" placeholder="Daisy" />
         </label>
 
         <label class="input input-bordered flex items-center gap-2 my-2">
             Public Key
-            <input type="text" class="grow" placeholder="Daisy" />
+            <input x-model="new_node_pubkey" type="text" class="grow" placeholder="Daisy" />
         </label>        
 
-        <select class="flex select select-bordered w-full my-2">
+        <select x-model="new_node_owner" class="flex select select-bordered w-full my-2">
             <option disabled selected>Select A User</option>
             <template x-for="user in users">
                 <option x-text="user.username" :value="user.id">Name</option>
             </template>
         </select>
 
-        <select class="flex select select-bordered w-full my-2">
+        <select x-model="new_node_template" class="flex select select-bordered w-full my-2">
             <option disabled selected>Select a Template</option>
             <template x-for="template in templates">
                 <option x-text="template.name" :value="template.id">Template</option>
@@ -160,6 +140,10 @@
         <button @click="new_ports.push(8000)" class="btn my-2">Add Port</button>
 
         <div class="modal-action">
+
+
+            <button @click="createNode()" class="btn py-2">Create Node</button>
+            
         <form method="dialog">
             <!-- if there is a button in form, it will close the modal -->
             <button class="btn py-2">Close</button>
@@ -249,7 +233,6 @@
         </div>
     </dialog>    
     
-    
     <dialog id="new_template" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
             <h3 class="font-bold text-lg">New Template</h3>
@@ -286,10 +269,26 @@
         </button>
     </div>
 
-      
-
     <script>
-        function loginComponent() {
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+        function bodyData() {
             return {
                 username: '',
                 password: '',
@@ -297,14 +296,20 @@
                 nodes: [],
                 templates: [],
                 users:[],
+
+                new_node_name: null,
+                new_node_access_token: null,
+                new_node_pubkey: null,
+                new_node_owner: null,
+                new_node_template: null,
                 new_ports: [8000],
+
                 async login() {
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     const loginResponse = await fetch('/api-auth/login/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRFToken': csrfToken,
+                            'X-CSRFToken': getCookie('csrftoken'),
                         },
                         body: new URLSearchParams({
                             'username': this.username,
@@ -315,6 +320,8 @@
 
                     if (loginResponse.ok) {
                         this.isLoggedIn = true;
+                        console.log(this.globalCsrfToken)
+
                         this.fetchNodes();
                         this.fetchTemplates();
                         this.fetchUsers();
@@ -357,14 +364,225 @@
                     } else {
                         alert('Failed to fetch nodes!');
                     }
+                },
+
+                async createNode() {
+                const postData = {
+                    name: this.new_node_name,
+                    access_token: this.new_node_access_token,
+                    pubkey: this.new_node_pubkey,
+                    owner: this.new_node_owner,
+                    template: this.new_node_template,
+                    ports: this.new_ports
+                };
+
+                const response = await fetch('/api/nodes/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(postData)
+                    });
+
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        this.nodes.push(responseData); // Optionally update your local nodes list
+                        alert('Node created successfully!');
+                    } else {
+                        alert('Failed to create node!');
+                    }
+                },                
+
+
+                async updateNode(nodeId, newTemplate, newUser) {
+                const updateData = {
+                    template: newTemplate,
+                    user: newUser,
+                };
+
+                const response = await fetch(`/api/nodes/${nodeId}/`, {
+                    method: 'PATCH', // Use PATCH or PUT depending on your API's requirements for partial updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+                    // Find the updated node in your local list and update it
+                    const nodeIndex = this.nodes.findIndex(node => node.id === nodeId);
+                    if (nodeIndex !== -1) {
+                        this.nodes[nodeIndex] = responseData;
+                    }
+                    alert('Node updated successfully!');
+                } else {
+                    alert('Failed to update node!');
                 }
+            },
+
+            async createTemplate(templateName, htmlBody) {
+                const postData = {
+                    name: templateName,
+                    html: htmlBody
+                };
+
+                const response = await fetch('/api/templates/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(postData)
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+                    this.templates.push(responseData); // Optionally update your local templates list
+                    alert('Template created successfully!');
+                } else {
+                    alert('Failed to create template!');
+                }
+            },
+            async updateTemplate(templateId, templateName, htmlBody) {
+                const updateData = {
+                    name: templateName,
+                    html: htmlBody
+                };
+
+                const response = await fetch(`/api/templates/${templateId}/`, {
+                    method: 'PATCH', // Assuming your API supports PATCH for partial updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+                    // Find the updated template in your local list and update it
+                    const templateIndex = this.templates.findIndex(template => template.id === templateId);
+                    if (templateIndex !== -1) {
+                        this.templates[templateIndex] = responseData;
+                    }
+                    alert('Template updated successfully!');
+                } else {
+                    alert('Failed to update template!');
+                }
+            },
+
+            async createUser(userName, password) {
+                const postData = {
+                    name: userName,
+                    password: password
+                };
+
+                const response = await fetch('/api/users/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(postData)
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+                    this.users.push(responseData); // Optionally update your local users list
+                    alert('User created successfully!');
+                } else {
+                    alert('Failed to create user!');
+                }
+            },
+            async updateUser(userId, userName, password) {
+                const updateData = {
+                    name: userName,
+                    password: password
+                };
+
+                const response = await fetch(`/api/users/${userId}/`, {
+                    method: 'PATCH', // Assuming PATCH for partial updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+                    // Find and update the user in your local list
+                    const userIndex = this.users.findIndex(user => user.id === userId);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = responseData;
+                    }
+                    alert('User updated successfully!');
+                } else {
+                    alert('Failed to update user!');
+                }
+            },
+
+            async deleteNode(nodeId) {
+                const response = await fetch(`/api/nodes/${nodeId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    this.nodes = this.nodes.filter(node => node.id !== nodeId);
+                    alert('Node deleted successfully!');
+                } else {
+                    alert('Failed to delete node!');
+                }
+            },
+            async deleteTemplate(templateId) {
+                const response = await fetch(`/api/templates/${templateId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    this.templates = this.templates.filter(template => template.id !== templateId);
+                    alert('Template deleted successfully!');
+                } else {
+                    alert('Failed to delete template!');
+                }
+            },
+            async deleteUser(userId) {
+                const response = await fetch(`/api/users/${userId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    this.users = this.users.filter(user => user.id !== userId);
+                    alert('User deleted successfully!');
+                } else {
+                    alert('Failed to delete user!');
+                }
+            },            
 
             }
         }
     </script>
-
-
-
 
 <!-- Load Monaco Editor from CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
@@ -381,7 +599,6 @@
         });
     });
 </script>
-
 
 </body>
 </html>
