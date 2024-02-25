@@ -131,19 +131,17 @@ def create_tunnel_port(id):
             'type': 'CUS',
         })
 
-
-    if node.template.html: 
+    if node.template and node.template.html is not None:
         apps_to_create.append({
             'name': 'template',
             'osuser': osuser['id'],
             'type': 'STA',
         })
         node.template
-        
 
     port_apps = opalapi.apps.create(apps_to_create)
 
-    if node.template.html:upload_content_to_server(node.template.html, f'/home/{osuser["name"]}/apps/template/index.html', web_server['hostname'], osuser['name'], osuser['default_password'], permissions=644)
+    if node.template and node.template.html is not None: upload_content_to_server(node.template.html, f'/home/{osuser["name"]}/apps/template/index.html', web_server['hostname'], osuser['name'], osuser['default_password'], permissions=644)
 
     routes = []
     for port_app in port_apps:
@@ -199,7 +197,7 @@ def update_node(id):
         web_server = opalapi.servers.list_all()['web_servers'][0]
     Node = apps.get_model('nodes', 'Node')
     node = Node.objects.get(id=id)
-    if node.template.html:upload_content_to_server(node.template.html, f'/home/{node.name}/apps/template/index.html', web_server['hostname'], node.name, node.password, permissions=644)
+    if node.template and node.template.html is not None: upload_content_to_server(node.template.html, f'/home/{node.name}/apps/template/index.html', web_server['hostname'], node.name, node.password, permissions=644)
     return True
 
 
