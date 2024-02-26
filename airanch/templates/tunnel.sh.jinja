@@ -48,7 +48,7 @@ After=network.target
 [Service]
 # Assuming the user is the one that should run the command, if not, adjust User field
 User=root
-ExecStart=/usr/bin/ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -o IdentityFile=$SSHKEYPATH -R ${REMOTEPORT}:0.0.0.0:${LOCALPORT} ${USERNAME}@${REMOTEHOST}
+ExecStart=/usr/bin/ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -o IdentityFile=$SSHKEYPATH -R ${REMOTEPORT}:localhost:${LOCALPORT} ${USERNAME}@${REMOTEHOST}
 Restart=always
 RestartSec=3
 
