@@ -17,7 +17,9 @@ def download_shell_script(request, uuid):
     node = get_object_or_404(Node, pk=uuid)
     
     # Render the shell script template with context
-    script_content = render_to_string('tunnel.sh.jinja', {'node': node})
+    script_content = render_to_string('tunnel.sh.jinja', {
+        'node': node
+        })
     
     # Create an HTTP response with the rendered script as content
     # and appropriate content type for a shell script

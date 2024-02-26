@@ -1,40 +1,5 @@
 #!/bin/bash
 
-# Variables (to be filled in by Jinja template)
-USERNAME="{{ username }}"
-LOCALPORT="{{ local_port }}"
-REMOTEPORT="{{ remote_port }}"
-REMOTEHOST="{{ remote_host }}"
-
-# Prepare SSH Key
-SSHKEYPATH="$HOME/.ssh/generated_key"
-SSHKEYPUBPATH="$SSHKEYPATH.pub"
-mkdir -p "$HOME/.ssh"
-
-# Generate SSH Key (without passphrase)
-ssh-keygen -t rsa -b 2048 -f "$SSHKEYPATH" -q -N ""
-
-# Set permissions
-chmod 600 "$SSHKEYPATH"
-
-# Create systemd service file
-create_service_file() {
-    cat <<EOF > /etc/systemd/system/ssh-tunnel.service
-[Unit]
-Description=Keep Alive SSH Tunnel for $USERNAME
-After=network.target
-
-[Service]
-User=$USERNAME
-ExecStart=/usr/bin/ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -o IdentityFile=$SSHKEYPATH -L $LOCALPORT:localhost:$REMOTEPORT $USERNAME@$REMOTEHOST
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-EOF
-}
-
 # Check for systemd
 if ! command -v systemctl &> /dev/null; then
     echo "Systemd does not appear to be installed. Exiting."
@@ -47,15 +12,51 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-# Create systemd service file
-create_service_file
+# Prepare SSH Key
+SSHKEYPATH="$HOME/.ssh/generated_key"
+mkdir -p "$HOME/.ssh"
 
-# Enable and start the service
-systemctl enable ssh-tunnel.service
-systemctl start ssh-tunnel.service
+# Generate SSH Key (without passphrase)
+if [ ! -f "$SSHKEYPATH" ]; then
+    ssh-keygen -t rsa -b 2048 -f "$SSHKEYPATH" -q -N ""
+    chmod 600 "$SSHKEYPATH"
+fi
 
-echo "SSH Tunnel service has been successfully created, enabled, and started."
+# Format: "USERNAME LOCALPORT:REMOTEHOST:REMOTEPORT"
+TUNNELS=(
+    {% for port in node.ports.all %}"{{ node.name }} {{ port.entry_port }}:{{ node.hostname }}:{{ port.exit_port }}"
+    {% endfor %}
+)
+
+# Create systemd service files
+for i in "${!TUNNELS[@]}"; do
+    IFS=' ' read -ra ADDR <<< "${TUNNELS[i]}"
+    USERNAME=${ADDR[0]}
+    TUNNELSPEC=${ADDR[1]}
+    SERVICE_NAME="ssh-tunnel-$i.service"
+
+    cat <<EOF > "/etc/systemd/system/$SERVICE_NAME"
+[Unit]
+Description=Keep Alive SSH Tunnel $i for $USERNAME
+After=network.target
+
+[Service]
+User=$USERNAME
+ExecStart=/usr/bin/ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -o IdentityFile=$SSHKEYPATH -L $TUNNELSPEC $USERNAME
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    # Enable and start the service
+    systemctl enable "$SERVICE_NAME"
+    systemctl start "$SERVICE_NAME"
+
+    echo "SSH Tunnel service $i has been successfully created, enabled, and started."
+done
 
 # Bright red warning for the user
-echo -e "\e[91mIMPORTANT: Paste the public key into the database:\e[0m"
-cat "$SSHKEYPUBPATH"
+echo -e "\e[91mIMPORTANT: Paste the public key into the remote server's authorized_keys file for each user/host combination:\e[0m"
+cat "$SSHKEYPATH.pub"
