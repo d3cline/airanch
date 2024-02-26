@@ -30,7 +30,7 @@
                         <th x-show="users.length > 0">Pubkey</th>
                         <th x-show="users.length > 0">State</th>
                         <th x-show="users.length > 0">Ports</th>
-                        <th  x-show="users.length > 0">Edit</th>
+                        <th  x-show="users.length > 0">Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,8 +61,19 @@
                             </td>
                             <td  x-show="users.length > 0">
                                 <button onclick="edit_node.showModal()" @click="edit_node_id = node.id; editNodeInit(node.id)" class="btn btn-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" /></svg>
                                 </button>
+
+                                <button onclick="delete_node.showModal()" @click="edit_node_id = node.id; editNodeInit(node.id)" class="btn btn-circle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><<path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+                                </button>
+
+                                <button @click="" class="btn btn-circle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                                </button>
+
+                                   
+
                             </td>
                         </tr>
                     </template>
@@ -81,18 +92,49 @@
                 <tbody>
                     <template x-for="(user, i) in users" :key="user.id">
                         <tr>
-                            <th x-text="user.username">Name</th>
-
+                            <th class="w-full" x-text="user.username">Name</th>
                             <td>
-                                <button onclick="edit_user.showModal()" class="btn btn-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+                                <button onclick="edit_user.showModal()" @click="edit_user_id = user.id " class="btn btn-circle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" /></svg>
                                 </button>
                             </td>
+                              
+
+
                         </tr>
                     </template>
                 </tbody>
             </table>
         </div>
+
+        <div class="overflow-x-auto"  x-show="users.length > 0">
+            <table class="table">
+                <!-- head -->
+                <thead>
+                    <tr>
+                        <th>Template</th>
+                        <th >Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="(template, i) in templates" :key="template.id">
+                        <tr>
+                            <th class="w-full" x-text="template.name">Name</th>
+                            <td>
+                                <button onclick="edit_template.showModal()" @click="edit_template_id = template.id " class="btn btn-circle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" /></svg>
+                                </button>
+                            </td>
+
+                                 
+
+
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
     <dialog id="new_node" class="modal modal-bottom sm:modal-middle">
@@ -193,15 +235,16 @@
 
             <label class="input input-bordered flex items-center gap-2 my-2">
                 Name
-                <input type="text" class="grow" placeholder="" />
+                <input x-model="new_user_name" type="text" class="grow" placeholder="" />
             </label>
 
             <label class="input input-bordered flex items-center gap-2 my-2">
                 Password
-                <input type="text" class="grow" placeholder="" />
+                <input x-model="new_user_password" type="text" class="grow" placeholder="" />
             </label>            
 
             <div class="modal-action">
+            <button @click="createUser()" class="btn py-2">Create User</button>                
             <form method="dialog">
                 <!-- if there is a button in form, it will close the modal -->
                 <button class="btn">Close</button>
@@ -212,15 +255,15 @@
 
     <dialog id="edit_user" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
-            <h3 class="font-bold text-lg">Edit User</h3>
+            <h3 x-text="`Edit User ${edit_user_id}`" class="font-bold text-lg">Edit User</h3>
             <p class="py-4">Press ESC key or click the button below to close</p>
 
             <label class="input input-bordered flex items-center gap-2 my-2">
                 Password
-                <input type="text" class="grow" placeholder="" />
+                <input x-modal="edit_user_password" type="text" class="grow" placeholder="" />
             </label>            
-
             <div class="modal-action">
+            <button @click="updateUser()" class="btn py-2">Update User</button>
             <form method="dialog">
                 <!-- if there is a button in form, it will close the modal -->
                 <button class="btn">Close</button>
@@ -232,16 +275,16 @@
     <dialog id="new_template" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
             <h3 class="font-bold text-lg">New Template</h3>
-            <p class="py-4">Press ESC key or click the button below to close</p>
 
             <label class="input input-bordered flex items-center gap-2 my-2">
                 Name
-                <input type="text" class="grow" placeholder="" />
+                <input  x-model="new_template_name" type="text" class="grow" placeholder="" />
             </label>
 
-            <div id="editor" class="w-full h-96"></div>
+            <div  x-model="new_template_html" id="editor" class="w-full h-96"></div>
 
             <div class="modal-action">
+            <button @click="createTemplate()" class="btn py-2">Create Template</button>                
             <form method="dialog">
                 <!-- if there is a button in form, it will close the modal -->
                 <button class="btn">Close</button>
@@ -249,6 +292,27 @@
             </div>
         </div>
     </dialog>      
+
+    <dialog id="edit_template" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 x-text="`Edit Template ${edit_template_id}`" class="font-bold text-lg">Edit Template</h3>
+
+            <label class="input input-bordered flex items-center gap-2 my-2">
+                Name
+                <input  x-model="edit_template_name" type="text" class="grow" placeholder="" />
+            </label>
+
+            <div  x-model="edit_template_html" id="editor" class="w-full h-96"></div>
+
+            <div class="modal-action">
+            <button @click="createTemplate()" class="btn py-2">Update Template</button>                
+            <form method="dialog">
+                <!-- if there is a button in form, it will close the modal -->
+                <button class="btn">Close</button>
+            </form>
+            </div>
+        </div>
+    </dialog>     
 
     <div class="btm-nav"  x-show="users.length > 0" x-bind:class="{'hidden': !isLoggedIn}">
         <button onclick="new_node.showModal()" class="hover:active">
@@ -312,6 +376,24 @@
             edit_node_pubkey: null,
             edit_node_owner: 1,
             edit_node_template: null,
+
+            new_user_password: null,
+            new_user_name: null, 
+
+            edit_user_password: null,
+            edit_user_id: null,
+
+            new_template_name: null,
+            new_template_html: null,
+
+            edit_template_id: null, 
+            edit_template_name: null,
+            edit_template_html: null,
+
+            delete_node_id: null,
+            delete_user_id: null,
+            delete_template_id: null,
+
             async login() {
                 const loginResponse = await fetch('/api-auth/login/', {
                     method: 'POST',
@@ -429,10 +511,10 @@
                 alert('Failed to update node!');
             }
         },
-            async createTemplate(templateName, htmlBody) {
+            async createTemplate() {
                 const postData = {
-                    name: templateName,
-                    html: htmlBody
+                    name: this.new_template_name,
+                    html: this.new_template_html
                 };
 
                 const response = await fetch('/api/templates/', {
@@ -453,13 +535,14 @@
                     alert('Failed to create template!');
                 }
             },
-            async updateTemplate(templateId, templateName, htmlBody) {
+            async updateTemplate() {
                 const updateData = {
-                    name: templateName,
-                    html: htmlBody
+                    id: this.edit_template_id,
+                    name: this.edit_template_name,
+                    html: this.edit_template_html
                 };
 
-                const response = await fetch(`/api/templates/${templateId}/`, {
+                const response = await fetch(`/api/templates/`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -481,10 +564,10 @@
                     alert('Failed to update template!');
                 }
             },
-            async createUser(userName, password) {
+            async createUser() {
                 const postData = {
-                    name: userName,
-                    password: password
+                    username: this.new_user_name,
+                    password: this.new_user_password
                 };
 
                 const response = await fetch('/api/users/', {
@@ -505,13 +588,13 @@
                     alert('Failed to create user!');
                 }
             },
-            async updateUser(userId, userName, password) {
+            async updateUser() {
                 const updateData = {
-                    name: userName,
-                    password: password
+                    id: this.edit_user_id,
+                    password: this.edit_user_password
                 };
 
-                const response = await fetch(`/api/users/${userId}/`, {
+                const response = await fetch(`/api/users/`, {
                     method: 'PATCH', // Assuming PATCH for partial updates
                     headers: {
                         'Content-Type': 'application/json',
@@ -534,12 +617,16 @@
                 }
             },
             async deleteNode(nodeId) {
-                const response = await fetch(`/api/nodes/${nodeId}/`, {
+                const updateData = {
+                    id: this.delete_node_id,
+                };
+                const response = await fetch(`/api/nodes/`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                     },
                     credentials: 'include',
+                    body: JSON.stringify(updateData)
                 });
 
                 if (response.ok) {
@@ -550,12 +637,16 @@
                 }
             },
             async deleteTemplate(templateId) {
-                const response = await fetch(`/api/templates/${templateId}/`, {
+                const updateData = {
+                    id: this.delete_template_id,
+                };                
+                const response = await fetch(`/api/templates/`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                     },
                     credentials: 'include',
+                    body: JSON.stringify(updateData)
                 });
 
                 if (response.ok) {
@@ -566,12 +657,16 @@
                 }
             },
             async deleteUser(userId) {
-                const response = await fetch(`/api/users/${userId}/`, {
+                const updateData = {
+                    id: this.delete_user_id,
+                };                
+                const response = await fetch(`/api/users/`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                     },
                     credentials: 'include',
+                    body: JSON.stringify(updateData)
                 });
 
                 if (response.ok) {
