@@ -32,17 +32,23 @@ TUNNELS=(
 for i in "${!TUNNELS[@]}"; do
     IFS=' ' read -ra ADDR <<< "${TUNNELS[i]}"
     USERNAME=${ADDR[0]}
-    TUNNELSPEC=${ADDR[1]}
+    # Splitting the TUNNELSPEC into local and remote parts
+    IFS=':' read -ra PORTS <<< "${ADDR[1]}"
+    LOCALPORT=${PORTS[0]}
+    REMOTEHOST=${PORTS[1]}
+    REMOTEPORT=${PORTS[2]}
     SERVICE_NAME="ssh-tunnel-$i.service"
 
+    # Corrected ExecStart line to match the new syntax
     cat <<EOF > "/etc/systemd/system/$SERVICE_NAME"
 [Unit]
 Description=Keep Alive SSH Tunnel $i for $USERNAME
 After=network.target
 
 [Service]
-User=$USERNAME
-ExecStart=/usr/bin/ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -o IdentityFile=$SSHKEYPATH -L $TUNNELSPEC $USERNAME
+# Assuming the user is the one that should run the command, if not, adjust User field
+User=root
+ExecStart=/usr/bin/ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -o IdentityFile=$SSHKEYPATH -R ${REMOTEPORT}:0.0.0.0:${LOCALPORT} ${USERNAME}@${REMOTEHOST}
 Restart=always
 RestartSec=3
 
@@ -57,6 +63,5 @@ EOF
     echo "SSH Tunnel service $i has been successfully created, enabled, and started."
 done
 
-# Bright red warning for the user
 echo -e "\e[91mIMPORTANT: Paste the public key into the remote server's authorized_keys file for each user/host combination:\e[0m"
 cat "$SSHKEYPATH.pub"
