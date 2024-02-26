@@ -8,6 +8,25 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions
 from .serializers import UserSerializer
 
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+
+def download_shell_script(request, uuid):
+    # Fetch the Node object by UUID
+    node = get_object_or_404(Node, pk=uuid)
+    
+    # Render the shell script template with context
+    script_content = render_to_string('tunnel.sh.jinja', {'node': node})
+    
+    # Create an HTTP response with the rendered script as content
+    # and appropriate content type for a shell script
+    response = HttpResponse(script_content, content_type='text/plain')
+    # Suggest a filename for the browser to download
+    response['Content-Disposition'] = f'attachment; filename="{uuid}.sh"'
+    
+    return response
+
 class NodeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
 
