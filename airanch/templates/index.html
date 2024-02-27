@@ -241,8 +241,13 @@
             </label>
 
             <label class="input input-bordered flex items-center gap-2 my-2">
+                Email
+                <input x-model="new_user_email" type="email" class="grow" placeholder="" />
+            </label>     
+
+            <label class="input input-bordered flex items-center gap-2 my-2">
                 Password
-                <input x-model="new_user_password" type="text" class="grow" placeholder="" />
+                <input x-model="new_user_password" type="password" class="grow" placeholder="" autocomplete="off"/>
             </label>            
 
             <div class="modal-action">
@@ -262,7 +267,7 @@
 
             <label class="input input-bordered flex items-center gap-2 my-2">
                 Password
-                <input x-modal="edit_user_password" type="text" class="grow" placeholder="" />
+                <input x-modal="edit_user_password" type="text" class="grow" placeholder="" autocomplete="off"/>
             </label>            
             <div class="modal-action">
             <button @click="updateUser()" class="btn py-2">Update User</button>
@@ -418,10 +423,12 @@
             edit_node_owner: 1,
             edit_node_template: null,
 
+            new_user_email: null,
             new_user_password: null,
             new_user_name: null, 
 
             edit_user_password: null,
+            edit_user_email: null,
             edit_user_id: null,
 
             new_template_name: null,
@@ -478,8 +485,6 @@
 
                 if (response.ok) {
                     this.users = await response.json();
-                } else {
-                    alert('Failed to fetch nodes!');
                 }
             },
             async fetchTemplates() {
@@ -490,8 +495,6 @@
 
                 if (response.ok) {
                     this.templates = await response.json();
-                } else {
-                    alert('Failed to fetch nodes!');
                 }
             },
             async createNode() {
@@ -608,10 +611,11 @@
             async createUser() {
                 const postData = {
                     username: this.new_user_name,
+                    email: this.new_user_email,
                     password: this.new_user_password
                 };
 
-                const response = await fetch('/api/users/', {
+                const response = await fetch('/api/register/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -657,61 +661,49 @@
                     alert('Failed to update user!');
                 }
             },
-            async deleteNode(nodeId) {
-                const updateData = {
-                    id: this.delete_node_id,
-                };
-                const response = await fetch(`/api/nodes/`, {
+            async deleteNode() {
+                const response = await fetch(`/api/nodes/${this.delete_node_id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                     },
                     credentials: 'include',
-                    body: JSON.stringify(updateData)
                 });
 
                 if (response.ok) {
-                    this.nodes = this.nodes.filter(node => node.id !== nodeId);
+                    this.nodes = this.nodes.filter(node => node.id !== this.delete_node_id);
                     alert('Node deleted successfully!');
                 } else {
                     alert('Failed to delete node!');
                 }
             },
-            async deleteTemplate(templateId) {
-                const updateData = {
-                    id: this.delete_template_id,
-                };                
-                const response = await fetch(`/api/templates/`, {
+            async deleteTemplate() {
+                const response = await fetch(`/api/templates/${this.delete_template_id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                     },
                     credentials: 'include',
-                    body: JSON.stringify(updateData)
                 });
 
                 if (response.ok) {
-                    this.templates = this.templates.filter(template => template.id !== templateId);
+                    this.templates = this.templates.filter(template => template.id !== this.delete_template_id);
                     alert('Template deleted successfully!');
                 } else {
                     alert('Failed to delete template!');
                 }
             },
-            async deleteUser(userId) {
-                const updateData = {
-                    id: this.delete_user_id,
-                };                
-                const response = await fetch(`/api/users/`, {
+            async deleteUser() {
+                const response = await fetch(`/api/users/${this.delete_user_id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                     },
                     credentials: 'include',
-                    body: JSON.stringify(updateData)
                 });
 
                 if (response.ok) {
-                    this.users = this.users.filter(user => user.id !== userId);
+                    this.users = this.users.filter(user => user.id !== this.delete_user_id);
                     alert('User deleted successfully!');
                 } else {
                     alert('Failed to delete user!');
