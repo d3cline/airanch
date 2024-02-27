@@ -67,7 +67,7 @@ class TemplateViewSet(viewsets.ModelViewSet):
     serializer_class = TemplateSerializer
     permission_classes = [IsOwnerOrAdmin]
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
     def get_queryset(self):

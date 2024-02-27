@@ -80,7 +80,7 @@ class AdminNodeReadSerializer(serializers.ModelSerializer):
 class TemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'html']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

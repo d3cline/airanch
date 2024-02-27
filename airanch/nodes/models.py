@@ -23,8 +23,8 @@ class Template(models.Model):
 
 class Node(models.Model):
     name_validator = RegexValidator(
-        regex='^[a-z_]*$',
-        message='Name must be in lowercase and underscores only',
+        regex='^[a-z0-9_]*$',
+        message='Name must be in lowercase, underscores, and numbers only',
         code='invalid_name'
     )
 
