@@ -1,7 +1,7 @@
 import re
 import uuid
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .tasks import create_tunnel_port, delete_tunnel_port_objects, update_node, update_pub_key
@@ -17,15 +17,20 @@ STATE_CHOICES = [
     ('FAILED', 'Failed'),
 ]
 
-
 class Template(models.Model):
     html = models.TextField(blank=True, null=True)
     name = models.CharField(max_length=16, unique=True)
 
 class Node(models.Model):
+    name_validator = RegexValidator(
+        regex='^[a-z_]*$',
+        message='Name must be in lowercase and underscores only',
+        code='invalid_name'
+    )
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='nodes')
-    name = models.CharField(max_length=16, unique=True)
+    name = models.CharField(max_length=16, unique=True, validators=[name_validator], help_text='Enter a name (lowercase and underscores only).')
     state = models.CharField(max_length=10, choices=STATE_CHOICES, default='PENDING')
     os_user_id = models.UUIDField(blank=True, null=True)
     site_route_id = models.UUIDField(blank=True, null=True)

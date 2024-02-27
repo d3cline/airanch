@@ -10,6 +10,7 @@ import paramiko
 from paramiko import SSHClient, AutoAddPolicy
 from paramiko.sftp_attr import SFTPAttributes
 from celery import shared_task
+import os
 
 @shared_task
 def publish_public_key_to_server(public_key_content, hostname, username, password):
@@ -78,9 +79,11 @@ def upload_content_to_server(file_content, remote_filepath, hostname, username, 
         print(f"Failed to upload content: {e}")
         return False
 
-from paramiko import SSHClient, AutoAddPolicy
-import os
-
+def select_by_name(array, name):
+    for item in array:
+        if item['name'] == name:
+            return item
+    return None
 
 @shared_task
 def create_tunnel_port(id):
@@ -96,11 +99,18 @@ def create_tunnel_port(id):
     base_domain = filt_one(opalapi.domains.list_all(), {'name': NODE_BASE_DOMAIN_NAME})
 
     base_domain_name = base_domain['name']
-    node_domain_name = f'{node.name}.{base_domain_name}'
+    
     domains_to_create = [{
-        'name': node_domain_name,
+        'name': f'{node.name}.{base_domain_name}',
     }]
-    node_domain = one(opalapi.domains.create(domains_to_create))
+
+    for port in ports:
+        domains_to_create.append({
+            'name': f'{node.name}.{port.entry_port}.{base_domain_name}'
+        })
+
+    node_domains = opalapi.domains.create(domains_to_create)
+    template_domain = select_by_name(node_domains, f'{node.name}.{base_domain_name}')
 
     if WEBSERVER: 
         web_server = filt_one(opalapi.servers.list_all()['web_servers'], {'hostname': gethostname()})
@@ -143,36 +153,43 @@ def create_tunnel_port(id):
 
     if node.template and node.template.html is not None: upload_content_to_server(node.template.html, f'/home/{osuser["name"]}/apps/template/index.html', web_server['hostname'], osuser['name'], osuser['default_password'], permissions=644)
 
-    routes = []
+
+    sites_to_create = []
     for port_app in port_apps:
         if port_app['name'] == 'template': 
-            routes.append({'app': port_app['id'], 'uri': '/'})
+            sites_to_create.append({
+                'name': f'{APPNAME}_{node.name}',
+                'ip4': webserver_primary_ip['id'],
+                'domains': [template_domain['id']],
+                'routes': [{'app': port_app['id'], 'uri': '/'}],
+                "generate_le": True,
+            })
+
         else:
             Port.objects.filter(entry_port=port_app['name']).update(
                 exit_port=port_app['port'],
                 port_app_id=port_app['id'],
             )
-            routes.append(
-                {'app': port_app['id'], 'uri': f'/{port_app["name"]}'}
-            )
+            port_domain = select_by_name(node_domains,  f'{node.name}.{port_app["name"]}.{base_domain_name}')
 
+            sites_to_create.append({
+                'name': f'{APPNAME}_{node.name}_{port_app["name"]}',
+                'ip4': webserver_primary_ip['id'],
+                'domains': [port_domain['id']],
+                'routes': [{'app': port_app['id'], 'uri': '/'}],
+                "generate_le": True,
+            })
 
-    sites_to_create = [{
-        'name': f'{APPNAME}_{node.name}',
-        'ip4': webserver_primary_ip['id'],
-        'domains': [node_domain['id']],
-        'routes': routes,
-        "generate_le": True,
-    }]
-    site = one(opalapi.sites.create(sites_to_create))
+    opalapi.sites.create(sites_to_create)
+
 
     Node.objects.filter(id=id).update(
-        node_domain_id=node_domain['id'],
+        #node_domain_id=node_domain['id'],
         os_user_id=osuser['id'],
-        site_route_id=site['id'],
+        #site_route_id=site['id'],
         password=osuser['default_password'],
         state='READY',
-        hostname=node_domain_name
+        hostname= f'{node.name}.{base_domain_name}'
     )
 
     return True
