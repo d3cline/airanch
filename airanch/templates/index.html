@@ -10,7 +10,7 @@
     <!-- Include Alpine.js -->
     <script src="//unpkg.com/alpinejs" defer></script>
 </head>
-<body x-data="bodyData()" class="h-screen bg-base-300 flex items-center justify-center">
+<body x-data="bodyData()" x-init="checkSessionCookie" class="h-screen bg-base-300 flex items-center justify-center">
     <div  class="container p-8 rounded-lg max-w-fit bg-base-100">
         <div id="loginForm" x-show="!isLoggedIn">
             <h2 class="text-xl font-bold mb-4">Login</h2>
@@ -460,6 +460,11 @@
                     alert('Login failed!');
                 }
             },
+            checkSessionCookie() {
+                var is_loggedin = '{{ request.user.is_authenticated }}' == 'True'? true : '';
+                if(is_loggedin)(this.login())
+            },
+
             async fetchNodes() {
                 const response = await fetch('/api/nodes/', {
                     method: 'GET',
