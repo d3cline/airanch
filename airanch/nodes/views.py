@@ -113,7 +113,17 @@ class NodeViewSet(viewsets.ModelViewSet):
 class TemplateViewSet(viewsets.ModelViewSet):
     queryset = Template.objects.all()
     serializer_class = TemplateSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:  # For create, update, delete
+            permission_classes = [permissions.IsAdminUser]
+        return [permission() for permission in permission_classes]
+
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer

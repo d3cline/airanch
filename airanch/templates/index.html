@@ -122,7 +122,7 @@
                         <tr>
                             <th  x-text="template.name">Name</th>
                             <td class="w-36">
-                                <button onclick="edit_template.showModal()" @click="edit_template_id = template.id " class="btn btn-circle">
+                                <button onclick="edit_template.showModal()" @click="edit_template_id = template.id; editTemplateInit(template.id) " class="btn btn-circle">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" /></svg>
                                 </button>
                                 <button onclick="delete_template.showModal()" @click="delete_template_id = template.id" class="btn btn-circle">
@@ -279,8 +279,7 @@
                 <input  x-model="new_template_name" type="text" class="grow" placeholder="" />
             </label>
 
-            <div  x-model="new_template_html" id="new_template_editor" class="w-full h-96"></div>
-
+            <textarea  x-model="new_template_html" class="textarea textarea-bordered w-full h-96" placeholder="Bio"></textarea>
             <div class="modal-action">
             <button @click="createTemplate()" class="btn py-2">Create Template</button>                
             <form method="dialog">
@@ -300,10 +299,10 @@
                 <input  x-model="edit_template_name" type="text" class="grow" placeholder="" />
             </label>
 
-            <div  x-model="edit_template_html" id="edit_template_editor" class="w-full h-96"></div>
+            <textarea  x-model="edit_template_html" class="textarea textarea-bordered w-full h-96" placeholder="Bio"></textarea>
 
             <div class="modal-action">
-            <button @click="createTemplate()" class="btn py-2">Update Template</button>                
+            <button @click="updateTemplate()" class="btn py-2">Update Template</button>                
             <form method="dialog">
                 <!-- if there is a button in form, it will close the modal -->
                 <button class="btn">Close</button>
@@ -418,9 +417,20 @@
             edit_user_id: null,
             new_template_name: null,
             new_template_html: null,
+
             edit_template_id: null, 
             edit_template_name: null,
             edit_template_html: null,
+            templateByID(template_id){
+                return this.templates.find(template => template.id === template_id)
+            },
+            editTemplateInit(template_id){
+                let template = this.templateByID(template_id)
+                this.edit_template_name = template.name
+                this.edit_template_html = template.html;
+                console.log(this.edit_template_html)
+            },
+
             delete_node_id: null,
             delete_user_id: null,
             delete_template_id: null,
@@ -451,7 +461,6 @@
                 var is_loggedin = '{{ request.user.is_authenticated }}' == 'True'? true : '';
                 if(is_loggedin)(this.login())
             },
-
             async fetchNodes() {
                 const response = await fetch('/api/nodes/', {
                     method: 'GET',
@@ -566,12 +575,11 @@
             },
             async updateTemplate() {
                 const updateData = {
-                    id: this.edit_template_id,
                     name: this.edit_template_name,
                     html: this.edit_template_html
                 };
 
-                const response = await fetch(`/api/templates/`, {
+                const response = await fetch(`/api/templates/${this.edit_template_id}/`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -697,30 +705,6 @@
         }
     }
     </script>
-
-<!-- Load Monaco Editor from CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
-<script>
-    // Configuration for loading Monaco Editor
-    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
-
-    require(['vs/editor/editor.main'], function() {
-        // Instantiate the editor
-        monaco.editor.create(document.getElementById('new_template_editor'), {
-            value: "// Type your code here\n",
-            language: 'javascript',
-            theme: 'vs-dark'
-        });
-
-        monaco.editor.create(document.getElementById('edit_template_editor'), {
-            value: "// Type your code here\n",
-            language: 'javascript',
-            theme: 'vs-dark'
-        });
-
-
-    });
-</script>
 
 </body>
 </html>
