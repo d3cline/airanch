@@ -38,7 +38,7 @@
                         <tr>
                             <th x-text="node.name">Name</th>
                             <td x-text="templates.find(template => template.id === node.template)?.name || 'Not Found'">Template</td>
-                            <th><a target="_blank" x-bind:href="'https://'+node.hostname" x-text="node.hostname"></a></th>
+                            <th><a target="_blank" x-bind:href="`/api/template/${node.id}`" x-text="node.name"></a></th>
                             <td x-show="users.length > 0" x-text="users.find(user => user.id === node.owner)?.username || 'Not Found'">User</td>
                             <td x-show="users.length > 0">
                                 <input type="checkbox" class="checkbox" disabled x-bind:checked="node.pubkey !== null && node.pubkey !== ''" />
