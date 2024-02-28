@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama API Example</title>
+    <script>
+        async function generateText() {
+            const prompt = document.getElementById('promptInput').value;
+            const responseElement = document.getElementById('response');
+
+            try {
+                const response = await fetch('/api/proxy/{{node.id}}/11434/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                     "model": "gemma:7b",
+                     "prompt": prompt,
+                     "stream": false
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                responseElement.innerText = data.response || "No response text. Check the data structure returned by the API.";
+            } catch (error) {
+                console.error('Error fetching data: ', error);
+                responseElement.innerText = 'Failed to generate text. See console for more details.';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Ollama API Example</h1>
+    <label for="promptInput">Enter your prompt:</label>
+    <input type="text" id="promptInput" />
+    <button onclick="generateText()">Generate</button>
+    <div id="response" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px;">
+        Response will appear here...
+    </div>
+</body>
+</html>
