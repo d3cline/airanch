@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .models import Node, Template
+from .models import Node, Template, Port
 from .permissions import IsOwnerOrReadOnly, IsOwnerOrAdmin
 from .serializers import NodeReadSerializer, NodeWriteSerializer, NodeUpdateSerializer, AdminNodeReadSerializer, TemplateSerializer, UserSerializer, RegisterSerializer
 
@@ -8,11 +8,50 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, status
 from .serializers import UserSerializer
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+import requests
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
+@login_required
+@csrf_exempt
+def proxy_to_service(request, uuid, port, path=''):
+    try:
+        node = get_object_or_404(Node, pk=uuid)
+        port = get_object_or_404(Port, node=node, entry_port=port)
+        # Construct the service URL dynamically based on the port
+        service_url = f'http://localhost:{port.exit_port}/{path}'
+
+        # Forward the request to the service
+        resp = requests.request(
+            method=request.method,
+            url=service_url,
+            headers={key: value for (key, value) in request.headers.items() if key != 'Host'},
+            data=request.body,
+            allow_redirects=False)
+
+        # Return the response from the service to the client
+        response = HttpResponse(
+            content=resp.content,
+            status=resp.status_code,
+            content_type=resp.headers.get('Content-Type', 'application/octet-stream')
+        )
+
+        # Copy relevant headers from the service response
+        for header in ['Content-Disposition', 'Content-Length']:
+            if header in resp.headers:
+                response[header] = resp.headers[header]
+
+        return response
+    except requests.exceptions.RequestException as e:
+        # Log the error here if you want
+        # For example: logger.error(f"Service unavailable: {e}")
+        return HttpResponseServerError("Service is currently unavailable.", status=503)
 
 @api_view(['POST'])
 def register_user(request):
