@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
-from .views import NodeViewSet, TemplateViewSet, UserViewSet, download_shell_script, register_user, proxy_to_service
+from .views import NodeViewSet, TemplateViewSet, UserViewSet, download_shell_script, register_user, proxy_to_service, render_template
 
 router = DefaultRouter()
 router.register(r'nodes', NodeViewSet, basename='node')
@@ -13,5 +13,5 @@ urlpatterns = [
     path('<uuid:uuid>.sh', download_shell_script, name='download_shell_script'),
     path('register/', register_user, name='register'),
     path('proxy/<uuid:uuid>/<int:port><path:path>', proxy_to_service, name='proxy_to_service'),
-
+    path('template/<uuid:uuid>', render_template, name='render_template'),
 ]

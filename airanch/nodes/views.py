@@ -17,6 +17,7 @@ from rest_framework.response import Response
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+import jinja2
 
 @login_required
 @csrf_exempt
@@ -25,7 +26,8 @@ def proxy_to_service(request, uuid, port, path=''):
         node = get_object_or_404(Node, pk=uuid)
         port = get_object_or_404(Port, node=node, entry_port=port)
         # Construct the service URL dynamically based on the port
-        service_url = f'http://localhost:{port.exit_port}/{path}'
+        service_url = f'http://127.0.0.1:{port.exit_port}{path}'
+        print(service_url)
 
         # Forward the request to the service
         resp = requests.request(
@@ -52,6 +54,13 @@ def proxy_to_service(request, uuid, port, path=''):
         # Log the error here if you want
         # For example: logger.error(f"Service unavailable: {e}")
         return HttpResponseServerError("Service is currently unavailable.", status=503)
+
+@login_required
+def render_template(request, uuid):
+    node = get_object_or_404(Node, pk=uuid)
+    template = jinja2.Template(node.template.html)
+    rendered_content = template.render({'node':node})
+    return HttpResponse(rendered_content)
 
 @api_view(['POST'])
 def register_user(request):

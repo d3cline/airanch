@@ -21,9 +21,9 @@ class TemplateInline(admin.StackedInline):
 
 @admin.register(Node)
 class NodeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'state', 'os_user_id', 'site_route_id', 'node_domain_id')
-    search_fields = ('name', 'state', 'os_user_id', 'site_route_id', 'node_domain_id')
-    readonly_fields = ['state', 'os_user_id', 'site_route_id', 'node_domain_id', 'error_logs', 'password']
+    list_display = ('id', 'name', 'state', 'os_user_id')
+    search_fields = ('name', 'state', 'os_user_id')
+    readonly_fields = ['state', 'os_user_id', 'error_logs', 'password']
     list_filter = ('state',)
     inlines = [PublicKeyInline, PortInline] 
 

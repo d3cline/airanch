@@ -52,7 +52,7 @@ class NodeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Node
-        exclude = ['password', 'os_user_id', 'site_route_id', 'node_domain_id', 'error_logs', 'owner']
+        exclude = ['password', 'os_user_id', 'error_logs', 'owner']
 
     def get_ports(self, obj):
         ports_list = obj.ports.all()
@@ -64,7 +64,7 @@ class AdminNodeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Node
-        exclude = ['password', 'os_user_id', 'site_route_id', 'node_domain_id']
+        exclude = ['password', 'os_user_id']
 
     def get_pubkey(self, obj):
         if hasattr(obj, 'pubkey') and obj.pubkey is not None:
