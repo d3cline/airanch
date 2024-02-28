@@ -149,11 +149,6 @@
         </label>
 
         <label class="input input-bordered flex items-center gap-2 my-2">
-            Access Token
-            <input x-model="new_node_access_token" type="text" class="grow" placeholder="" />
-        </label>
-
-        <label class="input input-bordered flex items-center gap-2 my-2">
             Public Key
             <input x-model="new_node_pubkey" type="text" class="grow" placeholder="" />
         </label>        
@@ -196,11 +191,6 @@
         <div class="modal-box">
             <h3 x-text="`Edit Node ${edit_node_id}`" class="font-bold text-lg">Edit Node</h3>
 
-            <label class="input input-bordered flex items-center gap-2 my-2">
-                Access Token
-                <input x-model="edit_node_access_token" type="text" class="grow" placeholder="" />
-            </label>
-    
             <label class="input input-bordered flex items-center gap-2 my-2">
                 Public Key
                 <input x-model="edit_node_pubkey" type="text" class="grow" placeholder="" />
@@ -403,7 +393,6 @@
             templates: [],
             users:[],
             new_node_name: null,
-            new_node_access_token: null,
             new_node_pubkey: null,
             new_node_owner: 1,
             new_node_template: null,
@@ -413,13 +402,11 @@
             },
             editNodeInit(node_id){
                 let node = this.nodeByID(node_id)
-                this.edit_node_access_token = node.access_token;
                 this.edit_node_pubkey = node.pubkey
                 this.edit_node_owner = node.owner;
                 this.edit_node_template = node.template;
             },
             edit_node_id: null,
-            edit_node_access_token: null,
             edit_node_pubkey: null,
             edit_node_owner: 1,
             edit_node_template: null,
@@ -500,7 +487,6 @@
             async createNode() {
             const postData = {
                 name: this.new_node_name,
-                access_token: this.new_node_access_token,
                 pubkey: this.new_node_pubkey,
                 owner: this.new_node_owner,
                 template: this.new_node_template === '' ? null : this.new_node_template,
@@ -527,7 +513,6 @@
             },                
             async updateNode() {
             const updateData = {
-                access_token: this.edit_node_access_token,
                 pubkey: this.edit_node_pubkey,                
                 owner: this.edit_node_owner,
                 template: this.edit_node_template === '' ? null : this.edit_node_template,
