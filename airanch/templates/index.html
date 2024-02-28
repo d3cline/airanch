@@ -526,7 +526,6 @@
                 owner: this.edit_node_owner,
                 template: this.edit_node_template === '' ? null : this.edit_node_template,
             };
-
             const response = await fetch(`/api/nodes/${this.edit_node_id}/`, {
                 method: 'PUT',
                 headers: {

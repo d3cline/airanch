@@ -22,7 +22,7 @@ class NodeUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Node
-        fields = ['pubkey', 'owner', 'access_token', 'template']
+        fields = ['pubkey', 'owner', 'template']
 
     def update(self, instance, validated_data):
         pubkey_data = validated_data.pop('pubkey', None)

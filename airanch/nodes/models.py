@@ -91,7 +91,4 @@ def trigger_node_post_save(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Node)
 def trigger_node_post_delete(sender, instance, **kwargs):
-    delete_tunnel_port_objects.delay(
-        instance.os_user_id, 
-        instance.node_domain_id
-    )
+    delete_tunnel_port_objects.delay(instance.os_user_id)

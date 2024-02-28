@@ -24,6 +24,7 @@ import jinja2
 def proxy_to_service(request, uuid, port, path=''):
     try:
         node = get_object_or_404(Node, pk=uuid)
+        if node.owner != request.user: return HttpResponseServerError("403 Forbidden.", status=403)
         port = get_object_or_404(Port, node=node, entry_port=port)
         # Construct the service URL dynamically based on the port
         service_url = f'http://127.0.0.1:{port.exit_port}{path}'
@@ -58,6 +59,7 @@ def proxy_to_service(request, uuid, port, path=''):
 @login_required
 def render_template(request, uuid):
     node = get_object_or_404(Node, pk=uuid)
+    if node.owner != request.user: return HttpResponseServerError("403 Forbidden.", status=403)
     template = jinja2.Template(node.template.html)
     rendered_content = template.render({'node':node})
     return HttpResponse(rendered_content)
@@ -123,7 +125,6 @@ class TemplateViewSet(viewsets.ModelViewSet):
         else:  # For create, update, delete
             permission_classes = [permissions.IsAdminUser]
         return [permission() for permission in permission_classes]
-
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
