@@ -34,6 +34,7 @@ class Node(models.Model):
     state = models.CharField(max_length=10, choices=STATE_CHOICES, default='PENDING')
     os_user_id = models.UUIDField(blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
+    hostname = models.CharField(max_length=255, blank=True, null=True)
     template = models.ForeignKey(Template, on_delete=models.SET_NULL, blank=True, null=True, related_name='nodes')
     error_logs = models.JSONField(default=list, blank=True, null=True)
 

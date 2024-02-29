@@ -18,6 +18,7 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 import jinja2
+from airanch.settings import WEBSERVER
 
 @login_required
 @csrf_exempt
@@ -81,7 +82,8 @@ def download_shell_script(request, uuid):
     
     # Render the shell script template with context
     script_content = render_to_string('tunnel.sh.jinja', {
-        'node': node
+        'node': node,
+        'hostname': WEBSERVER
         })
     
     # Create an HTTP response with the rendered script as content

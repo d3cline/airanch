@@ -134,10 +134,18 @@ def create_tunnel_port(id):
         node.template
     port_apps = opalapi.apps.create(apps_to_create)
 
+    for port_app in port_apps:
+        if port_app['name'] != 'template': 
+            Port.objects.filter(entry_port=port_app['name']).update(
+                exit_port=port_app['port'],
+                port_app_id=port_app['id'],
+            )
+
     Node.objects.filter(id=id).update(
         os_user_id=osuser['id'],
         password=osuser['default_password'],
         state='READY',
+        hostname=web_server['hostname']
     )
     return True
 
