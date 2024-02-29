@@ -468,7 +468,8 @@
                 if (response.ok) {
                     this.nodes = await response.json();
                 } else {
-                    alert('Failed to fetch nodes!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },
             async fetchUsers() {
@@ -515,7 +516,8 @@
                     this.fetchNodes()
                     new_node.close()
                 } else {
-                    alert('Failed to create node!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },                
             async updateNode() {
@@ -540,7 +542,8 @@
                 edit_node.close()
                 
             } else {
-                alert('Failed to update node!');
+                const responseData = await response.json();
+                alert(JSON.stringify(responseData, null, 2));
             }
         },
             async createTemplate() {
@@ -565,7 +568,8 @@
                     new_template.close()
                     
                 } else {
-                    alert('Failed to create template!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },
             async updateTemplate() {
@@ -589,7 +593,8 @@
                     this.fetchTemplates()
                     edit_template.close()
                 } else {
-                    alert('Failed to update template!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },
             async createUser() {
@@ -614,7 +619,8 @@
                     this.fetchUsers()
                     new_user.close()
                 } else {
-                    alert('Failed to create user!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },
             async updateUser() {
@@ -639,7 +645,8 @@
                     edit_user.close()
                     
                 } else {
-                    alert('Failed to update user!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },
             async deleteNode() {
@@ -656,7 +663,8 @@
                     delete_node.close()
                     this.fetchNodes()
                 } else {
-                    alert('Failed to delete node!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },
             async deleteTemplate() {
@@ -673,7 +681,8 @@
                     delete_template.close()
                     this.fetchTemplates()
                 } else {
-                    alert('Failed to delete template!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },
             async deleteUser() {
@@ -690,7 +699,8 @@
                     delete_user.close()
                     this.fetchUsers()
                 } else {
-                    alert('Failed to delete user!');
+                    const responseData = await response.json();
+                    alert(JSON.stringify(responseData, null, 2));
                 }
             },            
         }
