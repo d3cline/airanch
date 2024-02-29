@@ -60,9 +60,11 @@ def proxy_to_service(request, uuid, port, path=''):
 def render_template(request, uuid):
     node = get_object_or_404(Node, pk=uuid)
     if node.owner != request.user: return HttpResponseServerError("403 Forbidden.", status=403)
-    template = jinja2.Template(node.template.html)
-    rendered_content = template.render({'node':node})
-    return HttpResponse(rendered_content)
+    if node.template is not None and node.template.html is not None: 
+        template = jinja2.Template(node.template.html)
+        rendered_content = template.render({'node':node})
+        return HttpResponse(rendered_content)
+    else: return  HttpResponseServerError("No template.", status=400)
 
 @api_view(['POST'])
 def register_user(request):

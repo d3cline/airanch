@@ -417,7 +417,6 @@
             edit_user_id: null,
             new_template_name: null,
             new_template_html: null,
-
             edit_template_id: null, 
             edit_template_name: null,
             edit_template_html: null,
@@ -430,7 +429,6 @@
                 this.edit_template_html = template.html;
                 console.log(this.edit_template_html)
             },
-
             delete_node_id: null,
             delete_user_id: null,
             delete_template_id: null,
@@ -514,8 +512,8 @@
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    this.nodes.push(responseData); // Optionally update your local nodes list
-                    alert('Node created successfully!');
+                    this.fetchNodes()
+                    new_node.close()
                 } else {
                     alert('Failed to create node!');
                 }
@@ -538,12 +536,9 @@
 
             if (response.ok) {
                 const responseData = await response.json();
-                // Find the updated node in your local list and update it
-                const nodeIndex = this.nodes.findIndex(node => node.id === this.edit_node_id);
-                if (nodeIndex !== -1) {
-                    this.nodes[nodeIndex] = responseData;
-                }
-                alert('Node updated successfully!');
+                this.fetchNodes()
+                edit_node.close()
+                
             } else {
                 alert('Failed to update node!');
             }
@@ -566,8 +561,9 @@
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    this.templates.push(responseData); // Optionally update your local templates list
-                    alert('Template created successfully!');
+                    this.fetchTemplates()
+                    new_template.close()
+                    
                 } else {
                     alert('Failed to create template!');
                 }
@@ -590,12 +586,8 @@
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    // Find the updated template in your local list and update it
-                    const templateIndex = this.templates.findIndex(template => template.id === templateId);
-                    if (templateIndex !== -1) {
-                        this.templates[templateIndex] = responseData;
-                    }
-                    alert('Template updated successfully!');
+                    this.fetchTemplates()
+                    edit_template.close()
                 } else {
                     alert('Failed to update template!');
                 }
@@ -619,8 +611,8 @@
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    this.users.push(responseData); // Optionally update your local users list
-                    alert('User created successfully!');
+                    this.fetchUsers()
+                    new_user.close()
                 } else {
                     alert('Failed to create user!');
                 }
@@ -643,12 +635,9 @@
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    // Find and update the user in your local list
-                    const userIndex = this.users.findIndex(user => user.id === userId);
-                    if (userIndex !== -1) {
-                        this.users[userIndex] = responseData;
-                    }
-                    alert('User updated successfully!');
+                    this.fetchUsers()
+                    edit_user.close()
+                    
                 } else {
                     alert('Failed to update user!');
                 }
@@ -664,7 +653,8 @@
 
                 if (response.ok) {
                     this.nodes = this.nodes.filter(node => node.id !== this.delete_node_id);
-                    alert('Node deleted successfully!');
+                    delete_node.close()
+                    this.fetchNodes()
                 } else {
                     alert('Failed to delete node!');
                 }
@@ -680,7 +670,8 @@
 
                 if (response.ok) {
                     this.templates = this.templates.filter(template => template.id !== this.delete_template_id);
-                    alert('Template deleted successfully!');
+                    delete_template.close()
+                    this.fetchTemplates()
                 } else {
                     alert('Failed to delete template!');
                 }
@@ -696,7 +687,8 @@
 
                 if (response.ok) {
                     this.users = this.users.filter(user => user.id !== this.delete_user_id);
-                    alert('User deleted successfully!');
+                    delete_user.close()
+                    this.fetchUsers()
                 } else {
                     alert('Failed to delete user!');
                 }
