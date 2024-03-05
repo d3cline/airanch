@@ -7,7 +7,8 @@
 
 # AI Ranch
 
-AI Ranch is a Django example project complete with UI, Django REST Framework, DaisyUI, Tailwind.css, Alpine.js, and all the fixin's to bootstrap your next AI startup.
+A Django example project for authenticating many users to many AI endpoints via SSH. 
+Complete with UI, Django REST Framework, DaisyUI, Tailwind.css, Alpine.js, and all the fixin's to bootstrap your next AI startup.
 
 ## Key Features
 
