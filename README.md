@@ -26,7 +26,7 @@ All the fixin's to bootstrap your next AI startup.
 
 ## How it Works
 
-1. Signup for an [Opalstack](https://opalstack.com/) account.
+1. Signup for an [Opalstack](https://my.opalstack.com/signup) account. (14 day free trial)
 2. Install AI Ranch as a Django app.
 3. Issue an API key.
 4. Manage home lab routing objects with AI Ranch.
