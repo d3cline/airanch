@@ -30,4 +30,15 @@ all the fixin's to bootstrap your next AI startup.
 
 - [Opalstack account](https://my.opalstack.com/signup)
 
-Enjoy building with AI Ranch!
+## Installation
+
+1. Install a 'Django' app using the Opalstack Dashboard.
+2. Clone the repo
+3. Setup the virtualenv, pip install requirements
+4. modify the start/stop scripts to use the correct paths
+5. Set the following env vars in the start script
+
+```
+export OPALSTACK_API_KEY='APITOKEN123'
+export NODE_BASE_DOMAIN_NAME='example.com'
+```
