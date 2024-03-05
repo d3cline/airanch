@@ -13,10 +13,11 @@ all the fixin's to bootstrap your next AI startup.
 
 ## Key Features
 
-- **Paywall Ollama.ai and other AI workloads**: Only authenticated owners may access hardware.
-- **Secure SSH Tunneling for AI Workloads**: SSH tunneling for secure, efficient access to resources.
-- **Integration with Traditional Web Hosting**: Seamlessly integrates with Opalstack.
-- **Full-Scale Support for AI Development**: Support for AI Ranch participants.
+- **Paywall Ollama.ai and other AI workloads**: Only authenticated owners may access hardware. *Sell the llama.*
+- **Template Engine**: Manage many UI templates and hardware nodes. *Skin the llama.* 
+- **Secure SSH Tunneling for AI Workloads**: SSH tunneling for secure, efficient access to resources. *Secure the llama.*
+- **Integration with Traditional Web Hosting**: Seamlessly integrates with Opalstack. *Syndicate the llama.*
+- **Full-Scale Support for AI Development**: Support for AI Ranch participants. *Support the llama.*
 
 ## How it Works
 
