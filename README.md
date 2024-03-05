@@ -8,7 +8,7 @@
 # AI Ranch
 
 A Django example project for authenticating many users to many AI endpoints.
-Complete with UI. Built with: Django REST Framework, DaisyUI, Tailwind.css, Alpine.js, and Opalstack.
+Complete with UI. Built with: Django REST Framework, DaisyUI, Tailwind.css, Alpine.js, and [Opalstack](https://opalstack.com/).
 All the fixin's to bootstrap your next AI startup.
 
 ## Key Features
@@ -16,12 +16,12 @@ All the fixin's to bootstrap your next AI startup.
 - **Paywall Ollama.ai and other AI workloads**: Only authenticated owners may access hardware. *Sell the llama.*
 - **Template Engine**: Manage many UI templates and hardware nodes. *Skin the llama.* 
 - **Secure SSH Tunneling for AI Workloads**: SSH tunneling for secure, efficient access to resources. *Secure the llama.*
-- **Integration with Traditional Web Hosting**: Seamlessly integrates with Opalstack. *Syndicate the llama.*
+- **Integration with Traditional Web Hosting**: Seamlessly integrates with [Opalstack](https://opalstack.com/). *Syndicate the llama.*
 - **Full-Scale Support for AI Development**: Support for AI Ranch participants. *Support the llama.*
 
 ## How it Works
 
-1. Signup for an Opalstack account.
+1. Signup for an [Opalstack](https://opalstack.com/) account.
 2. Install AI Ranch as a Django app.
 3. Issue an API key.
 4. Manage home lab routing objects with AI Ranch.
@@ -32,7 +32,7 @@ All the fixin's to bootstrap your next AI startup.
 
 ## Installation
 
-1. Install a 'Django' app using the Opalstack Dashboard.
+1. Install a 'Django' app using the [Opalstack](https://opalstack.com/) Dashboard.
 2. Clone the repo
 3. Setup the virtualenv, pip install requirements
 4. modify the start/stop scripts to use the correct paths
