@@ -5,6 +5,11 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Opalstack API](https://img.shields.io/badge/Opalstack-API-orange.svg)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/d3cline/airanch/main/icon.webp" alt="Logo" width="200"/>
+</p>
+
+
 # AI Ranch
 
 A Django example project for authenticating many users to many AI endpoints.
