@@ -8,8 +8,8 @@
 # AI Ranch
 
 A Django example project for authenticating many users to many AI endpoints.
-Complete with UI. Built with, Django REST Framework, DaisyUI, Tailwind.css, Alpine.js, 
-all the fixin's to bootstrap your next AI startup.
+Complete with UI. Built with: Django REST Framework, DaisyUI, Tailwind.css, Alpine.js, and Opalstack.
+All the fixin's to bootstrap your next AI startup.
 
 ## Key Features
 
