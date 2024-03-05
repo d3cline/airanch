@@ -9,12 +9,13 @@
   <img src="https://raw.githubusercontent.com/d3cline/airanch/main/icon.webp" alt="Logo" width="200"/>
 </p>
 
-
 # AI Ranch
 
 A Django example project for authenticating many users to many AI endpoints.
 Complete with UI. Built with: Django REST Framework, DaisyUI, Tailwind.css, Alpine.js, and [Opalstack](https://opalstack.com/).
 All the fixin's to bootstrap your next AI startup.
+
+https://github.com/d3cline/airanch/assets/77483/daad04d8-d8a6-4bc5-b27e-c6b47c11589b
 
 ## Key Features
 
@@ -47,3 +48,6 @@ All the fixin's to bootstrap your next AI startup.
 export OPALSTACK_API_KEY='APITOKEN123'
 export NODE_BASE_DOMAIN_NAME='example.com'
 ```
+
+
+
