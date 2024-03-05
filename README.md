@@ -1,8 +1,3 @@
-# AI Ranch
-![splash](splash.webp)
-
-## "Make AI work like crypto mining, or maybe shared hosting"
-
 AI Ranch is a full Django example deck complete with UI, Django REST Framework, Daisy.UI, Tailwind.css, Alpine.js, and all the fixin's to bootstrap your next AI startup.
 
 ## Key Features
